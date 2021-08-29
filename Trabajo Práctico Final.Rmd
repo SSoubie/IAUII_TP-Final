@@ -1,0 +1,119 @@
+---
+title: "Trabajo Práctico Final"
+author: "Kihara, Marco & Soubie"
+date: "29/8/2021"
+output: html_document
+---
+
+### **Trabajo Práctico Final**
+
+El cambio climático es uno de los desafios más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible e incentivar aquellas iniciativas que conlleven a un uso más racional de los recursos.
+
+En el siguiente trabajo, haremos especial foco en el sector turístico. En las última década, esta industria ha dado sus primeros pasos en la incorporación de tencologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con gran potencial "verde", no existén grandes precisiones sobre cuál es el estado de la cuestión actual.
+
+Con ello en vista, a partir de un análisis de establecimientos certificados con las directrices ambientales, nos propondremos responder:
+*A
+*B
+*C
+
+Para ordenar el análisis, dividiremos nuestro trabajo en partes.
+
+## 1º PARTE: Directrices de calidad ambiental
+
+```{r include=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+Para primera parte del trabajo, trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
+
+```{r}
+certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
+```
+
+Veamos un poco nuestros datos
+
+```{r}
+glimpse(certificaciones)
+```
+
+Podemos advertir varias cuestiones:
+* Nuestro dataset cuenta con 3176 casos y 18 variables
+* Los nombres de las variables no necesitan ser limpiados (de momento)
+* Los casos listados difieren segun rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunos.
+
+A partir de acá, anlaicemos con mayor propfundidad y veamos si es necesasrio realizar modificaciones a nuestro dataset.
+
+1º Empecemos por ver la cantidad de etiquetas que hay. El actual dataset contiene info sobre organizaciones certificadas por el estado nacional en diversas materias que hacen a la calidad turística. Veamos cuales son las que más se repiten:
+
+```{r}
+certificaciones %>% 
+  group_by(programa, subprograma) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Como podemos observar, son numerosas las etiquetas. Sin embargo, en este trabajo solo nos centraremos en las que certifican una gestión ambiental sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**
+(*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
+
+2º Ahora, veamos cuál es el rubro más certificado:
+
+```{r}
+certificaciones %>% 
+  group_by(rubro, subrubro) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+**Alojamiento**, seguido, aunque por bastante, de **Gastronomía** y **Agencia de viaje** son los rubros más frecuentes de nuestra tabla.
+
+3º Por último, veamos la distribución geográfica de nuestras iniciativas.
+
+```{r}
+certificaciones %>% 
+  group_by(pais) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Curiosamente, en el dataset aparecen iniciativas de otras naciones de la región. A los fines de este trabajo, solo nos concentraremos en aquellas que se encuentran al interior de nuestro país.
+
+```{r}
+certificaciones %>% 
+  filter(pais=="Argentina") %>% 
+  group_by(provincia) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Podemos ver que Buenos Aires es la provincia con el mayor número de certificaciones, seguida de Mendoza, y, que La Pampa y Formosa, en ese orden, son las provincias con el menor número.
+
+```{r}
+certificaciones %>% 
+  filter(pais=="Argentina") %>% 
+  group_by(ciudad) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+En cuanto a las ciudades, la Ciudad Autónoma de Buenos Aires y Bariloche, respectivamente, son las ciudades que cuentan con el mayor número de certificaciones.
+
+Luego de este breve análisis, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones anteriormente mencionadas.
+
+```{r}
+ambientales <- certificaciones %>% 
+  filter(pais=="Argentina",
+         subprograma=="Directrices de Gestión Ambiental" | grepl('14001', subprograma))
+```
+
+```{r}
+str(ambientales)
+```
+
+Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398 casos en total). En la próxima sección, haremos un anaálisis más exhaustivo de nuestros casos.
+
+## 2º PARTE: Diagnóstico
