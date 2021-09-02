@@ -9,7 +9,7 @@ output: html_document
 
 El cambio climático es uno de los desafios más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible e incentivar aquellas iniciativas que conlleven a un uso más racional de los recursos.
 
-En el siguiente trabajo, haremos especial foco en el sector turístico. En las última década, esta industria ha dado sus primeros pasos en la incorporación de tencologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con gran potencial "verde", no existén grandes precisiones sobre cuál es el estado de la cuestión actual.
+En el siguiente trabajo, haremos especial foco en el sector turístico. En las última década, esta industria ha dado sus primeros pasos en la incorporación de tecnologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con gran potencial "verde", no existén grandes precisiones sobre cuál es el estado de la cuestión actual.
 
 Con ello en vista, a partir de un análisis de establecimientos certificados con las directrices ambientales, nos propondremos responder:
 *A
@@ -25,13 +25,13 @@ library(tidyverse)
 library(readxl)
 ```
 
-Para primera parte del trabajo, trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
+Para primera parte del proyecto, trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
 
 ```{r}
 certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
 ```
 
-Veamos un poco nuestros datos
+Veamos rapidamente nuestros datos
 
 ```{r}
 glimpse(certificaciones)
@@ -40,9 +40,9 @@ glimpse(certificaciones)
 Podemos advertir varias cuestiones:
 * Nuestro dataset cuenta con 3176 casos y 18 variables
 * Los nombres de las variables no necesitan ser limpiados (de momento)
-* Los casos listados difieren segun rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunos.
+* Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunas cuestiones.
 
-A partir de acá, anlaicemos con mayor propfundidad y veamos si es necesasrio realizar modificaciones a nuestro dataset.
+A partir de aquí, analicemos con mayor profundidad nuestro dataset y veamos si es necesario realizar modificaciones al mismo.
 
 1º Empecemos por ver la cantidad de etiquetas que hay. El actual dataset contiene info sobre organizaciones certificadas por el estado nacional en diversas materias que hacen a la calidad turística. Veamos cuales son las que más se repiten:
 
@@ -114,6 +114,69 @@ ambientales <- certificaciones %>%
 str(ambientales)
 ```
 
-Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398 casos en total). En la próxima sección, haremos un anaálisis más exhaustivo de nuestros casos.
+Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398 casos en total). En la próxima sección, haremos un análisis más exhaustivo de nuestros casos.
 
 ## 2º PARTE: Diagnóstico
+
+Repitamos el análisis que hicimos anteriormente, pero esta vez solo aplicado a aquellos establecimientos nacionales que cuentan con las certificaciones ambientales.
+
+Veamos cuál es el rubro con más certificaciones ambientales
+
+```{r}
+ambientales %>% 
+  group_by(rubro) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+#ACÄ HAY QUE HOMOGENEIZAR ALGUNAS VARIABLES
+
+Dentro de las entidades certificadas, aquellas correspondientes con "alojamientos" representan la mayoría (casi el 50% de las certificadas). Veamos a que subcategoría pertencen:
+
+```{r}
+ambientales %>% 
+  filter(rubro=="Alojamiento") %>% 
+  group_by(subrubro) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Dentro de los alojamientos, las cabañas (43) son el grupo mayoritario, rondando el 20% de los alojamientos certificados. No obstante, hay que reconocer que la categoría hotel se encuentra dividida en varias subcategorías. Qué sucedería si las agrupamos?
+
+```{r}
+ambientales %>% 
+  filter(rubro=="Alojamiento") %>% 
+  mutate(subrubro=if_else(grepl('Hotel', subrubro), "Hotel", subrubro)) %>%
+  group_by(subrubro) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Si recodificamos las variables, veremos que los hoteles son el tipo de alojamiento mayoritario (72 casos), lo equivalente a aproximadamente el 36% de la muestra.
+
+Veamos ahora la distribucón geográfica de nuestros casos certificados.
+
+```{r}
+ambientales %>% 
+  group_by(provincia) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Curiosamente, podemos ver que la CABA destronó a Buenos Aires de la provincia con mayores certificaciones. Tambén interesante, vemos que no todas las provincias del país cuentan con emprendimientos con certificaciones ambientales, como La Pampa y Formosa.
+
+```{r}
+ambientales %>% 
+  group_by(ciudad) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Al hacer foco en las ciudades, CABA y Bariloche continuan siendo las ciudades con mayores certificaciones, aunque en un nivel mucho menor que sumando la totalidad de las certificaciones. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son solo un 30% de las certificaciones de CABA y un 15% de las de Bariloche.
+
+Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el ministerio de turismo, sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
