@@ -188,7 +188,55 @@ ambientales %>%
 
 Al hacer foco en las ciudades, CABA y Bariloche continuan siendo las ciudades con mayores certificaciones, aunque en un nivel mucho menor que sumando la totalidad de las certificaciones. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son solo un 30% de las certificaciones de CABA y un 15% de las de Bariloche.
 
-Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el ministerio de turismo, sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
+Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el Ministerio de Turismo. Sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
+
+Ahora bien, también resulta interesante analizar los años en los que las entidades obtuvieron sus certificados.
+
+```{r}
+library(lubridate)
+```
+```{r}
+class(ambientales$fecha_distincion)
+```
+```{r}
+ambientales <- ambientales %>% 
+  mutate(fecha_distincion=ymd(fecha_distincion))
+```
+
+```{r}
+class(ambientales$fecha_distincion)
+```
+
+```{r}
+ambientales <- ambientales %>% 
+  mutate(mes_distincion=month(fecha_distincion, label = TRUE)) %>% 
+  mutate(ano_distincion=year(fecha_distincion))
+```
+
+```{r}
+ambientales %>% 
+  group_by(ano_distincion) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+A partir de la información previa se evidencia que la mayoría de las distinciones fueron otorgadas en el año 2017.Por el contrario, dos años antes (año 2015) se registra la menor cantidad de distinciones. 
+Se podría pensar que, a medida que pasa el tiempo, cada año debería ser mayor la cantidad de entidades que reciben distinciones, ya sea porque aumenta el compromiso / la conciencia para con el medioambiente, ya sea porque se populariza la existencia de las distinciones, etc. Sin embargo, esta idea se refuta cuando se observa que del 2017 al 2018 y del 2018 al 2019 hubo reducciones considerables en la cantidad de entidades reconocidas.  
+
+Ahora se considerará este misma análisis pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y BAriloche.
+
+```{r}
+ambientales_ano_ciud <- ambientales %>% 
+  filter(ciudad %in% c("Ciudad Autonoma De Buenos Aires", "San Carlos De Bariloche")) %>% 
+  group_by(ano_distincion, ciudad) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+A partir de esta información se observa que, a pesar de que las dos ciudades sean las que poseen mayor cantidad de entidades certificadas, cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones; mientras que en San Carlos de Bariloche lo fue en el año 2017, refrozando la tendencia previamente observada a nivel nacional. 
+
+
 
 
 
