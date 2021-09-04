@@ -7,9 +7,9 @@ output: html_document
 
 ### **Trabajo Práctico Final**
 
-El cambio climático es uno de los desafios más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible e incentivar aquellas iniciativas que conlleven a un uso más racional de los recursos.
+El cambio climático es uno de los desafios más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
 
-En el siguiente trabajo, haremos especial foco en el sector turístico. En las última década, esta industria ha dado sus primeros pasos en la incorporación de tecnologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con gran potencial "verde", no existén grandes precisiones sobre cuál es el estado de la cuestión actual.
+En el siguiente trabajo haremos especial foco en el sector turístico. En la última década, esta industria ha dado sus primeros pasos en la incorporación de tecnologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con un amplio potencial "verde", no existen grandes precisiones sobre cuál es el estado de la cuestión actual.
 
 Con ello en vista, a partir de un análisis de establecimientos certificados con las directrices ambientales, nos propondremos responder:
 *A
@@ -25,7 +25,7 @@ library(tidyverse)
 library(readxl)
 ```
 
-Para primera parte del proyecto, trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
+Para la primera parte del proyecto trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
 
 ```{r}
 certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
@@ -40,7 +40,7 @@ glimpse(certificaciones)
 Podemos advertir varias cuestiones:
 * Nuestro dataset cuenta con 3176 casos y 18 variables
 * Los nombres de las variables no necesitan ser limpiados (de momento)
-* Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunas cuestiones.
+* Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunas variables.
 
 A partir de aquí, analicemos con mayor profundidad nuestro dataset y veamos si es necesario realizar modificaciones al mismo.
 
@@ -130,7 +130,16 @@ ambientales %>%
   print(n=Inf)
 ```
 
-#ACÄ HAY QUE HOMOGENEIZAR ALGUNAS VARIABLES
+
+```{r}
+ambientales %>% 
+  mutate(rubro=if_else(grepl('Agencia', rubro), "Agencia de viajes", rubro)) %>%
+  mutate(rubro=if_else(grepl('Actividad recreativas y deportivas', rubro), "Actividades recreativas y deportivas", rubro)) %>%
+  group_by(rubro) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
 
 Dentro de las entidades certificadas, aquellas correspondientes con "alojamientos" representan la mayoría (casi el 50% de las certificadas). Veamos a que subcategoría pertencen:
 
@@ -179,4 +188,55 @@ ambientales %>%
 
 Al hacer foco en las ciudades, CABA y Bariloche continuan siendo las ciudades con mayores certificaciones, aunque en un nivel mucho menor que sumando la totalidad de las certificaciones. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son solo un 30% de las certificaciones de CABA y un 15% de las de Bariloche.
 
-Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el ministerio de turismo, sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
+Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el Ministerio de Turismo. Sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
+
+Ahora bien, también resulta interesante analizar los años en los que las entidades obtuvieron sus certificados.
+
+```{r}
+library(lubridate)
+```
+```{r}
+class(ambientales$fecha_distincion)
+```
+```{r}
+ambientales <- ambientales %>% 
+  mutate(fecha_distincion=ymd(fecha_distincion))
+```
+
+```{r}
+class(ambientales$fecha_distincion)
+```
+
+```{r}
+ambientales <- ambientales %>% 
+  mutate(mes_distincion=month(fecha_distincion, label = TRUE)) %>% 
+  mutate(ano_distincion=year(fecha_distincion))
+```
+
+```{r}
+ambientales %>% 
+  group_by(ano_distincion) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+A partir de la información previa se evidencia que la mayoría de las distinciones fueron otorgadas en el año 2017.Por el contrario, dos años antes (año 2015) se registra la menor cantidad de distinciones. 
+Se podría pensar que, a medida que pasa el tiempo, cada año debería ser mayor la cantidad de entidades que reciben distinciones, ya sea porque aumenta el compromiso / la conciencia para con el medioambiente, ya sea porque se populariza la existencia de las distinciones, etc. Sin embargo, esta idea se refuta cuando se observa que del 2017 al 2018 y del 2018 al 2019 hubo reducciones considerables en la cantidad de entidades reconocidas.  
+
+Ahora se considerará este misma análisis pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y BAriloche.
+
+```{r}
+ambientales_ano_ciud <- ambientales %>% 
+  filter(ciudad %in% c("Ciudad Autonoma De Buenos Aires", "San Carlos De Bariloche")) %>% 
+  group_by(ano_distincion, ciudad) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+A partir de esta información se observa que, a pesar de que las dos ciudades sean las que poseen mayor cantidad de entidades certificadas, cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones; mientras que en San Carlos de Bariloche lo fue en el año 2017, refrozando la tendencia previamente observada a nivel nacional. 
+
+
+
+
+
