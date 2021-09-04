@@ -31,7 +31,7 @@ Para la primera parte del proyecto trabajaremos sobre el dataset de Organizacion
 certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
 ```
 
-Veamos rapidamente nuestros datos
+Veamos rapidamente nuestros datos:
 
 ```{r}
 glimpse(certificaciones)
