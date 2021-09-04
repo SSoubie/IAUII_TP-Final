@@ -7,7 +7,7 @@ output: html_document
 
 ### **Trabajo Práctico Final**
 
-El cambio climático es uno de los desafios más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
+El cambio climático es uno de los desafíos más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
 
 En el siguiente trabajo haremos especial foco en el sector turístico. En la última década, esta industria ha dado sus primeros pasos en la incorporación de tecnologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con un amplio potencial "verde", no existen grandes precisiones sobre cuál es el estado de la cuestión actual.
 
