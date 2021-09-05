@@ -3,18 +3,32 @@ title: "Trabajo Práctico Final"
 author: "Kihara, Marco & Soubie"
 date: "29/8/2021"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ### **Trabajo Práctico Final**
 
-El cambio climático es uno de los desafíos más urgentes que enfrenta la humanidad. Se espera que el aumento de la temperatura media mundial por encima de los 1,5º C. en los próximos 15 años genere grandes costos económicos y sociales, con un impacto mayor sobre los sectores más vulnerables, y haga tambalear varios de los avances logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
+El cambio climático es uno de los desafíos más urgentes que enfrenta la
+humanidad. Se espera que el aumento de la temperatura media mundial por
+encima de los 1,5º C. en los próximos 15 años genere grandes costos
+económicos y sociales, con un impacto mayor sobre los sectores más
+vulnerables, y haga tambalear varios de los avances logrados hasta el
+momento. En este marco, es necesario promover una transición hacia un
+modelo de desarrollo más sostenible y fomentar aquellas iniciativas que
+conlleven a un uso más racional de los recursos.
 
-En el siguiente trabajo haremos especial foco en el sector turístico. En la última década, esta industria ha dado sus primeros pasos en la incorporación de tecnologías y procesos ambientalmente saludables en nuestro país, y, si bien es un sector con un amplio potencial "verde", no existen grandes precisiones sobre cuál es el estado de la cuestión actual.
+En el siguiente trabajo haremos especial foco en el sector turístico
+nacional. En la última década, esta industria ha dado sus primeros pasos
+en la incorporación de tecnologías y procesos ambientalmente saludables
+en nuestro país, y, si bien es un sector con un amplio potencial
+"verde", no existen grandes precisiones sobre cuál es el estado de la
+cuestión actual.
 
-Con ello en vista, a partir de un análisis de establecimientos certificados con las directrices ambientales, nos propondremos responder:
-*A
-*B
-*C
+Con ello en vista, a partir de un análisis de establecimientos
+certificados con las directrices ambientales, nos propondremos
+responder: *A* B \*C
 
 Para ordenar el análisis, dividiremos nuestro trabajo en partes.
 
@@ -25,7 +39,10 @@ library(tidyverse)
 library(readxl)
 ```
 
-Para la primera parte del proyecto trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
+Para la primera parte del proyecto trabajaremos sobre el dataset de
+Organizaciones distinguidas del Sistema Argentino de Calidad Turística
+(SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en
+<http://datos.yvera.gob.ar/>.
 
 ```{r}
 certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
@@ -37,14 +54,19 @@ Veamos rapidamente nuestros datos:
 glimpse(certificaciones)
 ```
 
-Podemos advertir varias cuestiones:
-* Nuestro dataset cuenta con 3176 casos y 18 variables
-* Los nombres de las variables no necesitan ser limpiados (de momento)
-* Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, solo por nombrar algunas variables.
+Podemos advertir varias cuestiones: \* Nuestro dataset cuenta con 3176
+casos y 18 variables \* Los nombres de las variables no necesitan ser
+limpiados (de momento) \* Los casos listados difieren según rubro,
+subrubro, programa, subprograma, provincia y ciudad, sólo por nombrar
+algunas variables.
 
-A partir de aquí, analicemos con mayor profundidad nuestro dataset y veamos si es necesario realizar modificaciones al mismo.
+A partir de aquí, analicemos con mayor profundidad nuestro dataset y
+veamos si es necesario realizar modificaciones al mismo.
 
-1º Empecemos por ver la cantidad de etiquetas que hay. El actual dataset contiene info sobre organizaciones certificadas por el estado nacional en diversas materias que hacen a la calidad turística. Veamos cuales son las que más se repiten:
+1º Empecemos por ver la cantidad de etiquetas que hay. El actual dataset
+contiene información sobre organizaciones certificadas por el Estado
+Nacional en diversas materias que hacen a la calidad turística. Veamos
+cuales son las que más se repiten:
 
 ```{r}
 certificaciones %>% 
@@ -54,8 +76,13 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-Como podemos observar, son numerosas las etiquetas. Sin embargo, en este trabajo solo nos centraremos en las que certifican una gestión ambiental sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**
-(*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
+Como podemos observar, son numerosas las etiquetas. Sin embargo, en este
+trabajo sólo nos centraremos en las que certifican una gestión ambiental
+sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**
+(*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de
+sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son
+exlcusivas de la temática. Para más info, ver
+<https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
 
 2º Ahora, veamos cuál es el rubro más certificado:
 
@@ -66,9 +93,13 @@ certificaciones %>%
   arrange(desc(N)) %>% 
   print(n=Inf)
 ```
-**Alojamiento**, seguido, aunque por bastante, de **Gastronomía** y **Agencia de viaje** son los rubros más frecuentes de nuestra tabla.
 
-3º Por último, veamos la distribución geográfica de nuestras iniciativas.
+**Alojamiento**, seguido, aunque por bastante diferencia, de
+**Gastronomía** y **Agencia de viaje** son los rubros más frecuentes de
+nuestra tabla.
+
+3º Por último, veamos la distribución geográfica de nuestras
+iniciativas.
 
 ```{r}
 certificaciones %>% 
@@ -78,7 +109,9 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-Curiosamente, en el dataset aparecen iniciativas de otras naciones de la región. A los fines de este trabajo, solo nos concentraremos en aquellas que se encuentran al interior de nuestro país.
+Curiosamente, en el dataset aparecen iniciativas de otras naciones de la
+región. A los fines de este trabajo, sólo nos concentraremos en aquellas
+que se encuentran al interior de nuestro país.
 
 ```{r}
 certificaciones %>% 
@@ -89,7 +122,9 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-Podemos ver que Buenos Aires es la provincia con el mayor número de certificaciones, seguida de Mendoza, y, que La Pampa y Formosa, en ese orden, son las provincias con el menor número.
+Podemos ver que Buenos Aires es la provincia con el mayor número de
+certificaciones, seguida de Mendoza, y que La Pampa y Formosa, en ese
+orden, son las provincias con el menor número de certificaciones.
 
 ```{r}
 certificaciones %>% 
@@ -100,9 +135,13 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-En cuanto a las ciudades, la Ciudad Autónoma de Buenos Aires y Bariloche, respectivamente, son las ciudades que cuentan con el mayor número de certificaciones.
+En cuanto a las ciudades, la Ciudad Autónoma de Buenos Aires y
+Bariloche, respectivamente, son las ciudades que cuentan con el mayor
+número de certificaciones.
 
-Luego de este breve análisis, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones anteriormente mencionadas.
+Luego de este breve análisis, filtremos nuestro dataset por los
+emprendimientos del país que cuentan con las certificaciones
+anteriormente mencionadas.
 
 ```{r}
 ambientales <- certificaciones %>% 
@@ -114,11 +153,15 @@ ambientales <- certificaciones %>%
 str(ambientales)
 ```
 
-Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398 casos en total). En la próxima sección, haremos un análisis más exhaustivo de nuestros casos.
+Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398
+casos en total). En la próxima sección, haremos un análisis más
+exhaustivo de nuestros casos.
 
 ## 2º PARTE: Diagnóstico
 
-Repitamos el análisis que hicimos anteriormente, pero esta vez solo aplicado a aquellos establecimientos nacionales que cuentan con las certificaciones ambientales.
+Repitamos el análisis que hicimos anteriormente, pero esta vez solo
+aplicado a aquellos establecimientos nacionales que cuentan con las
+certificaciones ambientales.
 
 Veamos cuál es el rubro con más certificaciones ambientales
 
@@ -130,7 +173,6 @@ ambientales %>%
   print(n=Inf)
 ```
 
-
 ```{r}
 ambientales %>% 
   mutate(rubro=if_else(grepl('Agencia', rubro), "Agencia de viajes", rubro)) %>%
@@ -141,7 +183,9 @@ ambientales %>%
   print(n=Inf)
 ```
 
-Dentro de las entidades certificadas, aquellas correspondientes con "alojamientos" representan la mayoría (casi el 50% de las certificadas). Veamos a que subcategoría pertencen:
+Dentro de las entidades certificadas, aquellas correspondientes con el
+nombre"alojamientos" representan la mayoría (casi el 50% de las
+certificadas). Veamos a que subcategoría pertencen:
 
 ```{r}
 ambientales %>% 
@@ -152,7 +196,10 @@ ambientales %>%
   print(n=Inf)
 ```
 
-Dentro de los alojamientos, las cabañas (43) son el grupo mayoritario, rondando el 20% de los alojamientos certificados. No obstante, hay que reconocer que la categoría hotel se encuentra dividida en varias subcategorías. Qué sucedería si las agrupamos?
+Dentro de la categoría alojamientos, las cabañas (43) son el grupo
+mayoritario, rondando el 20% de los alojamientos certificados. No
+obstante, hay que reconocer que la categoría "hotel" se encuentra
+dividida en varias subcategorías. ¿Qué sucedería si las agrupamos?
 
 ```{r}
 ambientales %>% 
@@ -164,7 +211,9 @@ ambientales %>%
   print(n=Inf)
 ```
 
-Si recodificamos las variables, veremos que los hoteles son el tipo de alojamiento mayoritario (72 casos), lo equivalente a aproximadamente el 36% de la muestra.
+Si recodificamos las variables, veremos que los hoteles son el tipo de
+alojamiento mayoritario (72 casos), lo equivalente a aproximadamente el
+36% de la muestra.
 
 Veamos ahora la distribucón geográfica de nuestros casos certificados.
 
@@ -176,7 +225,10 @@ ambientales %>%
   print(n=Inf)
 ```
 
-Curiosamente, podemos ver que la CABA destronó a Buenos Aires de la provincia con mayores certificaciones. Tambén interesante, vemos que no todas las provincias del país cuentan con emprendimientos con certificaciones ambientales, como La Pampa y Formosa.
+Curiosamente, podemos ver que la CABA destronó a Buenos Aires de la
+provincia con mayores certificaciones. También interesante, vemos que no
+todas las provincias del país cuentan con emprendimientos con
+certificaciones ambientales, como La Pampa y Formosa.
 
 ```{r}
 ambientales %>% 
@@ -186,18 +238,32 @@ ambientales %>%
   print(n=Inf)
 ```
 
-Al hacer foco en las ciudades, CABA y Bariloche continuan siendo las ciudades con mayores certificaciones, aunque en un nivel mucho menor que sumando la totalidad de las certificaciones. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son solo un 30% de las certificaciones de CABA y un 15% de las de Bariloche.
+Al hacer foco en las ciudades, CABA y Bariloche continuan siendo las
+ciudades con mayores certificaciones, aunque en un nivel mucho menor que
+sumando la totalidad de las certificaciones. De hecho, si lo comparamos
+con los datos observados anteriormente, vemos que las certifiaciones
+ambientales son sólo un 30% de las certificaciones de CABA, y un 15% de
+las de Bariloche.
 
-Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena practica por el Ministerio de Turismo. Sin embargo, solo 65 lo hacen por contar al con al menos un emprendimiento que contenga una insignia ambiental.
+Otro dato interesante es que el número de ciudades se redujo
+considerablemente. En este marco, podemos afirmar que 321 ciudades
+cuentan con al menos un emprendimiento certificado por alguna buena
+práctica por el Ministerio de Turismo.
 
-Ahora bien, también resulta interesante analizar los años en los que las entidades obtuvieron sus certificados.
+Sin embargo, sólo 65 lo hacen por contar al con al menos un
+emprendimiento que contenga una insignia ambiental.
+
+Ahora bien, también resulta interesante analizar los años en los que las
+entidades obtuvieron sus certificados.
 
 ```{r}
 library(lubridate)
 ```
+
 ```{r}
 class(ambientales$fecha_distincion)
 ```
+
 ```{r}
 ambientales <- ambientales %>% 
   mutate(fecha_distincion=ymd(fecha_distincion))
@@ -221,10 +287,20 @@ ambientales %>%
   print(n=Inf)
 ```
 
-A partir de la información previa se evidencia que la mayoría de las distinciones fueron otorgadas en el año 2017.Por el contrario, dos años antes (año 2015) se registra la menor cantidad de distinciones. 
-Se podría pensar que, a medida que pasa el tiempo, cada año debería ser mayor la cantidad de entidades que reciben distinciones, ya sea porque aumenta el compromiso / la conciencia para con el medioambiente, ya sea porque se populariza la existencia de las distinciones, etc. Sin embargo, esta idea se refuta cuando se observa que del 2017 al 2018 y del 2018 al 2019 hubo reducciones considerables en la cantidad de entidades reconocidas.  
+A partir de la información previa se evidencia que la mayoría de las
+distinciones fueron otorgadas en el año 2017. Por el contrario, dos años
+antes (año 2015) se registra la menor cantidad de distinciones.
 
-Ahora se considerará este misma análisis pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y BAriloche.
+Se podría pensar que, a medida que pasa el tiempo, cada año debería ser
+mayor la cantidad de entidades que reciben distinciones, ya sea porque
+aumenta el compromiso / la conciencia para con el medioambiente, ya sea
+porque se populariza la existencia de las distinciones, etc. Sin
+embargo, esta idea se refuta cuando se observa que del 2017 al 2018 y
+del 2018 al 2019 hubo reducciones considerables en la cantidad de
+entidades reconocidas.
+
+Ahora se considerará este misma análisis pero para las dos ciudades que
+concentran la mayor cantidad de distinciones: CABA y BAriloche.
 
 ```{r}
 ambientales_ano_ciud <- ambientales %>% 
@@ -234,9 +310,11 @@ ambientales_ano_ciud <- ambientales %>%
   arrange(desc(N)) %>% 
   print(n=Inf)
 ```
-A partir de esta información se observa que, a pesar de que las dos ciudades sean las que poseen mayor cantidad de entidades certificadas, cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones; mientras que en San Carlos de Bariloche lo fue en el año 2017, refrozando la tendencia previamente observada a nivel nacional. 
 
-
-
-
-
+A partir de esta información se observa que, a pesar de que las dos
+ciudades sean las que poseen mayor cantidad de entidades certificadas,
+cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el
+caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17
+distinciones; mientras que en San Carlos de Bariloche (Río Negro) fue en
+el año 2017, reforzando la tendencia previamente observada a nivel
+nacional.
