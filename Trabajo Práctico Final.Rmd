@@ -300,7 +300,96 @@ A partir de esta información se observa que, a pesar de que las dos ciudades se
 
 Por otro lado, además de analizar el año de certificaciones por Ciudades, evaluaremos el año de certificaciones según los rubros, para poder detectar si durante algún año en particular hubo un rubro que obtuvo mayores distinciones que otro. 
 
+```{r}
+ambientales_ano_rubro <- ambientales %>% 
+  group_by(ano_distincion, rubro) %>% 
+  summarise(N=n())
+```
 
+```{r}
+ambientales_ano_rubro_2 <- ambientales_ano_rubro %>% 
+  pivot_wider(names_from = ano_distincion, values_from = N)
+```
+
+```{r}
+ambientales_ano_rubro_2 %>% 
+  select(-9) %>% 
+  apply(2, which.max)
+```
+
+A partir de la operación anterior se puede observar que para todos los años analizados (excepto para el 2019), el rubro que recibió mayor cantidad de distinciones fue el de Alojamiento (4to en la lista). En el caso del año 2019, el rubro que obtuvo mayor cantidad de distinciones fue el de Balnearios. 
+
+Ahora bien, esta comparación en términos absolutos resulta un tanto injusta para aquellos rubros que poseen pocas certificaciones totales. Por lo tanto, ahora analizaremos la misma tabla que antes pero considerando los porcentajes de certificaciones recibidas por año por cada rubro.
+
+
+```{r}
+ambientales_ano_rubro_100 <- ambientales_ano_rubro %>% 
+  pivot_wider(names_from = rubro, values_from = N)
+```
+
+
+```{r}
+calcular_pct <- function(data){
+  round(data/(sum(data))*100,1)}
+```
+
+Para este análisis no consideraremos aquellos rubros que poseen valores nulos para todos los años excepto para uno, ya que para ese año tendrán un valor igual al 100%. Por este motivo, las columnas que no tendremos en cuenta son: 
+
+- Oficina de Informes
+
+- Eventos
+
+- Producción Olivícola
+
+```{r}
+ambientales_ano_rubro_100 <- ambientales_ano_rubro_100 %>% 
+  select(-12) %>% 
+  select(-(16:17))
+```
+
+```{r}
+class(ambientales_ano_rubro_100$`Actividades recreativas y deportivas`)
+```
+```{r}
+class(ambientales_ano_rubro_100$ano_distincion)
+```
+
+
+```{r}
+library(janitor)
+```
+
+
+```{r}
+ambientales_ano_rubro_100 <- ambientales_ano_rubro_100 %>% 
+  replace(is.na(.),0) %>% 
+  filter(!ano_distincion==0) %>% 
+  clean_names()
+```
+
+
+ACÁ INTENTÉ HACER LA FUNCION, PARA PODER SACAR LOS PORCENTAJES Y NO FUNCIONÓ. SI ALGUIEN SABE QUÉ ME ESTÁ FALTANDO LA RETOCAMOS Y SINO, LA ELIMINAMOS, NO HAY PROBLEMA; PERO QUERÍA PROBAR AL MENOS. 
+
+```{r}
+ambientales_ano_rubro_100_PRUEBA <- ambientales_ano_rubro_100 %>% 
+  as.character(ano_distincion) %>% 
+  transmute(ano_distincion, act_cul=(calcular_pct(data= actividades_culturales))) %>% 
+  transmute(ano_distincion, act_ryd=(calcular_pct(data = as.numeric(actividades_recreativas_y_deportivas)))) %>% 
+  transmute(ano_distincion, ag_viajes=(calcular_pct(data = as.numeric(`Agencia de Viajes`)))) %>% 
+  transmute(ano_distincion, aloj=(calcular_pct(data = as.numeric(`Alojamiento`)))) %>% 
+  transmute(ano_distincion, area_nat=(calcular_pct(data = as.numeric(`Area Natural Protegida`)))) %>% 
+  transmute(ano_distincion, balne=(calcular_pct(data = as.numeric(`Balneario`)))) %>% 
+  transmute(ano_distincion, com_tur=(calcular_pct(data = as.numeric(`Comercio Turistico`)))) %>% 
+  transmute(ano_distincion, eno=(calcular_pct(data=as.numeric(`Enoturismo`)))) %>% 
+  transmute(ano_distincion, gastro=(calcular_pct(data = as.numeric(`Gastronomía`)))) %>% 
+  transmute(ano_distincion, org_pub=(calcular_pct(data = as.numeric(`Organismo Público`)))) %>% 
+  transmute(ano_distincion, transp_tur=(calcular_pct(data = as.numeric(`Transporte turístico`)))) %>% 
+  transmute(ano_distincion, asoc=(calcular_pct(data=as.numeric(`Asociación`)))) %>% 
+  transmute(ano_distincion, conce=(calcular_pct(data = as.numeric(`Concesionaria`)))) %>% 
+  transmute(ano_distincion, emp_seryes=(calcular_pct(data = as.numeric(`Empresa de servicios y espectáculos`))))
+```
+
+Y ME FALTA HACER LA PARTE DE CANTIDAD DE DÍAS DESDE QUE CERTIFICARON
 
 
 
