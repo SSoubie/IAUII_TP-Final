@@ -180,9 +180,16 @@ ambientales %>%
 ```
 
 ```{r}
+ambientales <- ambientales %>% 
+  mutate(rubro=as.character(rubro), rubro=case_when(
+    rubro=="Agencia de viajes" ~ "Agencia de Viajes",
+    rubro=="Actividad recreativas y deportivas" ~ "Actividades recreativas y deportivas",
+    TRUE ~ rubro))
+```
+
+
+```{r}
 ambientales %>% 
-  mutate(rubro=if_else(grepl('Agencia', rubro), "Agencia de viajes", rubro)) %>%
-  mutate(rubro=if_else(grepl('Actividad recreativas y deportivas', rubro), "Actividades recreativas y deportivas", rubro)) %>%
   group_by(rubro) %>% 
   summarise(N=n()) %>% 
   arrange(desc(N)) %>% 
@@ -290,3 +297,11 @@ ambientales_ano_ciud <- ambientales %>%
 ```
 
 A partir de esta información se observa que, a pesar de que las dos ciudades sean las que poseen mayor cantidad de entidades certificadas, cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones; mientras que en San Carlos de Bariloche (Río Negro) fue en el año 2017, reforzando la tendencia previamente observada a nivel nacional.
+
+Por otro lado, además de analizar el año de certificaciones por Ciudades, evaluaremos el año de certificaciones según los rubros, para poder detectar si durante algún año en particular hubo un rubro que obtuvo mayores distinciones que otro. 
+
+
+
+
+
+
