@@ -25,6 +25,9 @@ Para ordenar el análisis, dividiremos nuestro trabajo en partes.
 ```{r include=FALSE}
 library(tidyverse)
 library(readxl)
+library(sf)
+library(dplyr)
+options (scipen = 100)
 ```
 
 Para la primera parte del proyecto trabajaremos sobre el dataset de Organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) del Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
@@ -39,11 +42,18 @@ Veamos rapidamente nuestros datos:
 glimpse(certificaciones)
 ```
 
-Podemos advertir varias cuestiones: \* Nuestro dataset cuenta con 3176 casos y 18 variables \* Los nombres de las variables no necesitan ser limpiados (de momento) \* Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, sólo por nombrar algunas variables.
+Podemos advertir varias cuestiones: 
+
+*  Nuestro dataset cuenta con 3176 casos y 18 variables 
+*  Los nombres de las variables no necesitan ser limpiados (de momento) 
+*  Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, sólo por nombrar algunas variables.
 
 A partir de aquí, analicemos con mayor profundidad nuestro dataset y veamos si es necesario realizar modificaciones al mismo.
 
-1º Empecemos por ver la cantidad de etiquetas que hay. El actual dataset contiene información sobre organizaciones certificadas por el Estado Nacional en diversas materias que hacen a la calidad turística. Veamos cuales son las que más se repiten:
+1º Empecemos por ver la cantidad de etiquetas que hay:
+*  El actual dataset contiene información sobre organizaciones certificadas por el Estado Nacional en diversas materias que hacen a la calidad turística. 
+
+Veamos cuáles son las que más se repiten:
 
 ```{r}
 certificaciones %>% 
@@ -52,9 +62,21 @@ certificaciones %>%
   arrange(desc(N)) %>% 
   print(n=Inf)
 ```
+```{r}
+certificaciones_01 <- count(certificaciones, programa)
+```
+
+
+```{r, fig.height=7, fig.width=15}
+ggplot() +
+  geom_col(data= certificaciones_01, aes(x=n, y=programa, fill=programa))+
+  geom_text(data= certificaciones_01, aes(x=n, y=programa, label=as.integer(n)), size=3)+
+  labs(title="Cantidad de organizaciones certificadas por programas", caption=" Fuente: http://datos.yvera.gob.ar/", x="Cantidad", y="Programas", fill= "Programas")
+```
 
 Como podemos observar, son numerosas las etiquetas. Sin embargo, en este trabajo sólo nos centraremos en las que certifican una gestión ambiental sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**
-(*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
+(*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. 
+Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
 
 
 2º Ahora, veamos cuál es el rubro más certificado:
@@ -66,8 +88,20 @@ certificaciones %>%
   arrange(desc(N)) %>% 
   print(n=Inf)
 ```
+```{r}
+certificaciones_02 <- count(certificaciones, rubro)
+```
+
+
+```{r, fig.height=7, fig.width=15}
+ggplot() +
+  geom_col(data= certificaciones_02, aes(x=n, y=rubro, fill=rubro))+
+  geom_text(data= certificaciones_02, aes(x=n, y=rubro, label=as.integer(n)), size=3)+
+  labs(title="Cantidad de organizaciones certificadas por rubros", caption=" Fuente: http://datos.yvera.gob.ar/", x="Cantidad", y="Rubros", fill= "Rubro")
+```
 
 **Alojamiento**, seguido, aunque por bastante diferencia, de **Gastronomía** y **Agencia de viaje** son los rubros más frecuentes de nuestra tabla.
+
 
 3º Por último, veamos la distribución geográfica de nuestras iniciativas.
 
@@ -88,6 +122,18 @@ certificaciones %>%
   summarise(N=n()) %>% 
   arrange(desc(N)) %>% 
   print(n=Inf)
+```
+
+```{r}
+certificaciones_03 <- count(certificaciones, provincia)
+```
+
+
+```{r, fig.height=7, fig.width=15}
+ggplot() +
+  geom_col(data= certificaciones_03, aes(x=n, y=provincia, fill=provincia))+
+  geom_text(data= certificaciones_03, aes(x=n, y=provincia, label=as.integer(n)), size=3)+
+  labs(title="Cantidad de organizaciones certificadas por provincia de la Argentina", caption=" Fuente: http://datos.yvera.gob.ar/", x="Cantidad", y="Provincia", fill= "Provincia")
 ```
 
 Podemos ver que Buenos Aires es la provincia con el mayor número de certificaciones, seguida de Mendoza, y que La Pampa y Formosa, en ese orden, son las provincias con el menor número de certificaciones.
