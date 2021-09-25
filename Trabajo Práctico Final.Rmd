@@ -14,12 +14,15 @@ editor_options:
 
 El cambio climático es uno de los desafíos más urgentes que enfrenta la humanidad. Se espera que en los próximos 15 años, el incremento de la temperatura media mundial por encima de los 1,5ºC. lleve al aumento en la priodicidad e intensidad de los fenómenos climáticos extremos, con grandes consecuencias para la sociedad (y, particularmente, para los sectores más vulnerables), y ponga en duda varios de los avances económicos y sociales logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
 
-En el siguiente trabajo haremos especial foco en el sector turístico nacional. En la última década, esta industria ha realizado sus primeros pasos hacia la incorporación de nuevas tecnologías y procesos ambientalmente sostenibles. Pese a ello, si bien el sector turistico es un sector con un amplio potencial "verde", no existen grandes precisiones sobre cuál es el estado de la cuestión actual.
+Frente a esta situación, distintas industrias han iniciado el camino hacia la sostenibilidad, entre las que podemos encontrar el sector turístico. El turismo........ (FLOR, ACÁ PODEMOS PONER ALGO DEL IMPACTO DEL PLÄSTTICO QUE HICIMOS PARA DIANA)
 
-Con ello en vista, a partir de un análisis de establecimientos certificados con las directrices ambientales, nos propondremos responder: *A* B \*C
+Con respecto a la situación en Argentina, durante la última década, el sector turístico ha realizado sus primeros pasos hacia la sostenibilidad, a partir de la incorporación de nuevas tecnologías y procesos aamigables con el medio ambiente. Pese a ello y al gran potencial "verde" que posee esta industria en el país, no existen grandes precisiones sobre  el estado actual de la cuestion.
+
+Con ello en vista, el siguiente trabajo se propone hacer un aporte a la discuón  sobre el nivel actual de la transición verde en sector turístico. Con tal fin, se realiza un análisis de los establecimientos locales certificados con las directrices ambientales otorgadas por el Ministerio de Turismo y Deportes de la Nación. Particularmente, buscamos responder:
+
+*A* B \*C
 
 Para ordenar el análisis, dividiremos nuestro trabajo en partes.
-
 
 ## 1º PARTE: Directrices de calidad ambiental
 
@@ -30,7 +33,7 @@ library(sf)
 options (scipen = 100)
 ```
 
-Para la primera parte del proyecto trabajaremos sobre el dataset de organizaciones distinguidas del Sistema Argentino de Calidad Turística (SACT) perteneciente al Ministerio de Turismo y Deporte de la Nación, disponible en <http://datos.yvera.gob.ar/>.
+En la primera parte del proyecto trabajaremos sobre el dataset de organizaciones distinguidas por el Sistema Argentino de Calidad Turística (SACT) perteneciente al Ministerio de Turismo y Deporte de la Nación. El mismo se encuentra disponible en <http://datos.yvera.gob.ar/>.
 
 ```{r}
 certificaciones <- read_xls("dato/Organizaciones certificadas.xls")
@@ -43,11 +46,12 @@ str(certificaciones)
 ```
 
 En un primer vistazo, podemos advertir varias cuestiones de nuestro dataset: 
-  + Nuestro dataset cuenta con 3176 casos y 18 variables 
-  + Los nombres de las variables no necesitan ser limpiados (de momento) 
-  + Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, sólo por nombrar algunas variables.
+  + La bases de datos contiene 3176 filas y 18 columnas.
+  + Los nombres de las variables (columnas) no necesitan ser limpiados (de momento). 
+  + Los casos listados difieren según rubro, subrubro, programa, subprograma, provincia y ciudad, por nombrar algunas variables.
+  + A priori, nuestros datos poseen un formato character, number o POSIXct.
 
-A partir de aquí, analicemos con mayor profundidad nuestro dataset y veamos si es necesario realizar modificaciones al mismo.
+A continuacón, analizaremos con mayor profundidad nuestro dataset. Para ello, nuestro primer paso consiste en "limpiar" nuestra base de datos.
 
 Primero, empecemos por ver la cantidad de etiquetas que hay. Como dijimos anteriormente, el actual dataset contiene información sobre las organizaciones turisticas certificadas por el Estado Nacional en diversas materias que hacen a la calidad del servicio que brindan. Veamos cuáles son las que más se repiten:
 
@@ -59,7 +63,7 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-Agrupemos algunas categorías:
+Vemos que algunas categorías repiten las mismas temáticas. Agrupemoslas:
 
 ```{r}
 certificaciones <- certificaciones %>% 
@@ -82,7 +86,7 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-Todas las etiquetas corresponden al sello CocinaAR. Por lo tanto, vamos a cambiar el nombre del programa:
+Todas los casos corresponden al "Sello CocinaAR". Por lo tanto, vamos a cambiar el nombre del programa:
 
 ```{r}
 certificaciones <- certificaciones %>% 
@@ -109,19 +113,36 @@ ggplot() +
        x="Cantidad",
        y="Programas",
        fill="Programas")+
-  theme_minimal()
+  theme_minimal()+
+  theme(legend.position = "none")
 ```
 
-### ESCRIBIR CONCLUSIÖN SOBRE GRAPH. (MAX & MIN)
+Podemos ver que las **"Directrices de Gestión"** es el programa más certificado de todos con 1083 casos, mientras que el **"Premio Nacional a la Calidad"** el que menos, con 66 casos.
 
-Agreguemos un mayor nivel de profundidad a nuestro análisis de las certificaciones. Veamos los subprogrmas. 
+Profundicemos sobre nuestro análisis de las certificaciones. Veamos los subprogrmas. 
 
 ```{r}
-certificaciones %>% 
+certificaciones %>% # HAY QUE VER COMO HACER PARA ORDNER POR GRUPO Y POR SUBGRUPO
   group_by(programa,subprograma) %>% 
   summarise(N=n()) %>% 
   arrange(programa,desc(N)) %>% 
   print(n=Inf)
+```
+
+Al igual que lo que sucede con los programas, podemos agrupar varios subprogramas.
+
+```{r}
+certificaciones <- certificaciones %>% 
+  mutate(subprograma = recode(subprograma,
+                           "Norma ISO 14785"="ISO 14785",
+                           "Norma ISO 9001:2015" = "ISO 9001:2015",
+                           "OHSAS 18001:2007" = "OHSAS 18001",
+                           "Norma IRAM SECTUR 42900 - Organización de eventos" = "Norma IRAM SECTUR 42900 - Organización de Eventos",
+"Norma IRAM SECTUR 42560 - Navegación Turística en Embarcaciones a motor" = "Norma IRAM SECTUR 42560 - Navegación Turística en Embarcaciones a Motor",
+"Norma IRAM-SECTUR 42560 - Navegación Turística en Embarcaciones a Motor" = "Norma IRAM SECTUR 42560 - Navegación Turística en Embarcaciones a Motor",
+"Norma IRAM SECTUR 42510 -  Servicios turísticos de montañismo" = "Norma IRAM SECTUR 42510 - Servicios Turísticos de Montañismo",
+"Norma IRAM SECTUR 42220  - Bed & Breakfast" = "Norma IRAM SECTUR 42220 - Bed & Breakfast"),
+        subprograma = if_else(is.na(subprograma), programa, subprograma))
 ```
 
 Como podemos observar, son numerosas las etiquetas que existen. Sin embargo, en este trabajo sólo nos centraremos en aquellas certificaciones que validan una gestión ambiental sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**.
@@ -141,7 +162,7 @@ certificaciones %>%
 Vemos que es necesario realizar una recodificación de algunos de nuestros casos. Para ello:
 
 ```{r}
-certificaciones <- certificaciones %>% #HAY QUE METERLE MUCHA MANO A LOS RUBROS Y LOS SUBRUBROS
+certificaciones <- certificaciones %>% #HAY QUE METERLE MANO A LOS SUBRUBROS
   mutate(rubro = case_when(
     rubro=="Agencia de viajes" ~ "Agencia de Viajes",
     rubro=="Actividad recreativas y deportivas" ~ "Actividades recreativas y deportivas",
@@ -163,20 +184,23 @@ rubro <- certificaciones %>%
 ggplot() +
   geom_col(data = rubro, aes(x=N, y=reorder(rubro, N), fill=rubro))+
   geom_text(data = rubro, aes(x=N+20, y=reorder(rubro, N), label=as.integer(N)), size=3)+
+  scale_x_continuous(limits = c(0, 1300),
+                     breaks = seq(0, 1300, 250))+
   labs(title="Cantidad de organizaciones certificadas por rubro",
        caption="Fuente: Sistema Argentino de Calidad Turística",
        x="Cantidad",
        y="Rubro",
        fill="Rubro")+
-  theme_minimal()
+  theme_minimal()+
+  theme(legend.position = "none")
 ```
 
-**Alojamiento**, seguido, aunque por bastante diferencia, de **Gastronomía** y **Agencia de viaje** son los rubros más frecuentes de nuestra tabla.
+**Alojamiento** (1237), seguido, aunque por bastante diferencia, de **Gastronomía** (448) y **Agencia de viaje** (364) son los rubros más frecuentes de nuestra tabla.
 
 Por último, veamos la distribución geográfica de nuestras iniciativas.
 
 ```{r}
-certificaciones %>% 
+pais <- certificaciones %>% 
   group_by(pais) %>% 
   summarise(N=n()) %>% 
   arrange(desc(N)) %>% 
@@ -214,7 +238,8 @@ ggplot() +
        x="Cantidad",
        y="Provincia",
        fill="Provincia")+
-  theme_minimal()
+  theme_minimal()+
+  theme(legend.position = "none")
 ```
 
 Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es la provincia que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298), y que **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos.
