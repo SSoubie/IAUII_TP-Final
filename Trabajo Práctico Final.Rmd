@@ -14,7 +14,7 @@ editor_options:
 
 El cambio climático es uno de los desafíos más urgentes que enfrenta la humanidad. Se espera que en los próximos 15 años, el incremento de la temperatura media mundial por encima de los 1,5ºC. lleve al aumento en la priodicidad e intensidad de los fenómenos climáticos extremos, con grandes consecuencias para la sociedad (y, particularmente, para los sectores más vulnerables), y ponga en duda varios de los avances económicos y sociales logrados hasta el momento. En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven a un uso más racional de los recursos.
 
-Frente a esta situación, distintas industrias han iniciado el camino hacia la sostenibilidad, entre las que podemos encontrar el sector turístico. El turismo........ (FLOR, ACÁ PODEMOS PONER ALGO DEL IMPACTO DEL PLÄSTTICO QUE HICIMOS PARA DIANA)
+Frente a esta situación, distintas industrias han iniciado el camino hacia la sostenibilidad, entre las que podemos encontrar el sector turístico. El turismo ........ (FLOR, ACÁ PODEMOS PONER ALGO DEL IMPACTO DEL PLÄSTTICO QUE HICIMOS PARA DIANA)
 
 Con respecto a la situación en Argentina, durante la última década, el sector turístico ha realizado sus primeros pasos hacia la sostenibilidad, a partir de la incorporación de nuevas tecnologías y procesos aamigables con el medio ambiente. Pese a ello y al gran potencial "verde" que posee esta industria en el país, no existen grandes precisiones sobre  el estado actual de la cuestion.
 
@@ -30,6 +30,7 @@ Para ordenar el análisis, dividiremos nuestro trabajo en partes.
 library(tidyverse)
 library(readxl)
 library(sf)
+library(lubridate)
 options (scipen = 100)
 ```
 
@@ -53,7 +54,26 @@ En un primer vistazo, podemos advertir varias cuestiones de nuestro dataset:
 
 A continuacón, analizaremos con mayor profundidad nuestro dataset. Para ello, nuestro primer paso consiste en "limpiar" nuestra base de datos.
 
-Primero, empecemos por ver la cantidad de etiquetas que hay. Como dijimos anteriormente, el actual dataset contiene información sobre las organizaciones turisticas certificadas por el Estado Nacional en diversas materias que hacen a la calidad del servicio que brindan. Veamos cuáles son las que más se repiten:
+Primero, veamos las organizaciones registradas en nuestro dataset.
+
+```{r}
+certificaciones %>% 
+  group_by(organizacion) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Podemos ver que varias organizaciones se repiten en nuestro dataset. Ello puede ser porque cuentan con más de una certificación. Para asegurarnos de ello, quedemosnos solo con los valores únicos.
+
+```{r}
+certificaciones <- certificaciones %>% 
+  unique()
+```
+
+Nuestro dataset se redujo a 3.173 casos, por lo que podemos observar que al menos tres casos estaban repetidos. 
+
+Ahora, empecemos por ver la cantidad de etiquetas que hay. Como dijimos anteriormente, el actual dataset contiene información sobre las organizaciones turisticas certificadas por el Estado Nacional en diversas materias que hacen a la calidad del servicio que brindan. Veamos cuáles son las que más se repiten:
 
 ```{r}
 certificaciones %>% 
@@ -117,7 +137,7 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-Podemos ver que las **"Directrices de Gestión"** es el programa más certificado de todos con 1083 casos, mientras que el **"Premio Nacional a la Calidad"** el que menos, con 66 casos.
+Podemos ver que las **"Directrices de Gestión"** es el programa más certificado de todos con 1082 casos, mientras que el **"Premio Nacional a la Calidad"** el que menos, con 64 casos.
 
 Profundicemos sobre nuestro análisis de las certificaciones. Veamos los subprogrmas. 
 
@@ -148,6 +168,27 @@ certificaciones <- certificaciones %>%
 Como podemos observar, son numerosas las etiquetas que existen. Sin embargo, en este trabajo sólo nos centraremos en aquellas certificaciones que validan una gestión ambiental sostenible: las **Directrices de gestión ambiental** y las **ISO 14001**.
 
 (*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
+
+Finalmente, veamos cuáles son los organismos certificantes.
+
+```{r}
+certificaciones %>% 
+  group_by(organismo_certificante) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+```{r}
+certificaciones <- certificaciones %>% 
+  mutate(organismo_certificante = recode(organismo_certificante,
+                           "B.V.Q.I. - Bureau Veritas Quality International"="Bureau Veritas Quality International",
+                           "Bureau Veritas" = "Bureau Veritas Quality International",
+                           "Tuv Nord" = "TÜV Nord Argentina SA",
+                           "DNV" = "Det Norske Veritas"))
+```
+
+El IRAM es el organismo certificante que más veces se encuentra nombrado, aunque, curiosamente, el Ministerio de Turismo de la Nación no resulta mencionado. Pese a ello, se infiere que los NAs existentes (2972) corresponden con directrices otorgadas por este último.
 
 Ahora, veamos cuál es el rubro más certificado:
 
@@ -195,12 +236,12 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-**Alojamiento** (1237), seguido, aunque por bastante diferencia, de **Gastronomía** (448) y **Agencia de viaje** (364) son los rubros más frecuentes de nuestra tabla.
+**Alojamiento** (1237), seguido, aunque por bastante diferencia, de **Gastronomía** (448) y **Agencia de viaje** (346) son los rubros más frecuentes de nuestra tabla.
 
-Por último, veamos la distribución geográfica de nuestras iniciativas.
+A continaución, veamos la distribución geográfica de nuestras iniciativas.
 
 ```{r}
-pais <- certificaciones %>% 
+certificaciones %>% 
   group_by(pais) %>% 
   summarise(N=n()) %>% 
   arrange(desc(N)) %>% 
@@ -230,7 +271,7 @@ provincias <- certificaciones %>%
 
 ggplot() +
   geom_col(data = provincias, aes(x=N, y=reorder(provincia, N), fill=provincia))+
-  geom_text(data = provincias, aes(x=N+10, y=reorder(provincia, N), label=as.integer(N)), size=3)+
+  geom_text(data = provincias, aes(x=N+5, y=reorder(provincia, N), label=as.integer(N)), size=3)+
   scale_x_continuous(limits = c(0, 320),
                      breaks = seq(0, 320, 40))+
   labs(title="Cantidad de organizaciones certificadas por provincia",
@@ -242,7 +283,7 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es la provincia que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298), y que **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos.
+Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es el distrito que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298), y que **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos.
 
 ```{r}
 certificaciones %>% 
@@ -255,6 +296,33 @@ certificaciones %>%
 
 En cuanto a las ciudades, la **Ciudad Autónoma de Buenos Aires** (201) y **Bariloche** (120), respectivamente, son las ciudades que cuentan con el mayor número de certificaciones.
 
+Veamos algunos detalles más de la localización de nuestras organizaciones: Código postal y calles.
+
+Comencemos por el primero.
+
+```{r}
+certificaciones %>%
+  filter(pais=="Argentina") %>% 
+  group_by(codigo_postal) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Podemos ver que todas las organizaciones cuentan con un código postal registrado (no se observan NAs). 
+
+```{r}
+certificaciones %>%
+  filter(pais=="Argentina") %>% 
+  group_by(calle, numero) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+En cuanto a las calles y sus alturas, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
+
+
 Para finalizar con esta sección, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones ambientales anteriormente mencionadas.
 
 ```{r}
@@ -264,7 +332,7 @@ ambientales <- certificaciones %>%
 ```
 
 ```{r}
-str(ambientales)
+glimpse(ambientales)
 ```
 
 Podemos ver que nuestro dataset se redujo aproximadamente 8 veces (398 casos en total). En la próxima sección, haremos un análisis más exhaustivo de nuestros casos.
@@ -477,6 +545,6 @@ ambientales_ano_rubro_100_PRUEBA <- ambientales_ano_rubro_100 %>%
 
 Y ME FALTA HACER LA PARTE DE CANTIDAD DE DÍAS DESDE QUE CERTIFICARON
 
-
+--------------------------------------------------------------------------------
 
 
