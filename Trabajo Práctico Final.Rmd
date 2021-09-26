@@ -169,7 +169,7 @@ Como podemos observar, son numerosas las etiquetas que existen. Sin embargo, en 
 
 (*ACLARACIÓN: Existen otras etiquetas que contemplan cuestiones de sostenibilidad. Sin embargo, aquí nos ocuparemos de aquellas que son exlcusivas de la temática. Para más info, ver <https://www.argentina.gob.ar/turismo/sistema-argentino-de-calidad-turistica/programas>*)
 
-Finalmente, veamos cuáles son los organismos certificantes.
+Luego, veamos cuáles son los organismos certificantes.
 
 ```{r}
 certificaciones %>% 
@@ -188,7 +188,27 @@ certificaciones <- certificaciones %>%
                            "DNV" = "Det Norske Veritas"))
 ```
 
-El IRAM es el organismo certificante que más veces se encuentra nombrado, aunque, curiosamente, el Ministerio de Turismo de la Nación no resulta mencionado. Pese a ello, se infiere que los NAs existentes (2972) corresponden con directrices otorgadas por este último.
+El **IRAM** es el organismo certificante que más veces se encuentra nombrado. Pese a ello, es importante mencionar la ausencia del Ministerio de Turismo de la Nación. En esta linea, se infiere que los NAs existentes (2972) corresponden con directrices otorgadas por este último.
+
+Finalmente, veamos la descripción de los servicios certificados.
+
+```{r}
+certificaciones %>% 
+  group_by(alcance_procesos_certificados) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Emprolijemos los casos.
+
+```{r}
+certificaciones <- certificaciones %>% 
+  mutate(alcance_procesos_certificados = str_squish(alcance_procesos_certificados),
+         alcance_procesos_certificados = str_remove_all(alcance_procesos_certificados, pattern = "[:punct:]"))
+```
+
+Podemos advertir que las descripciones son varias y que en numerosos casos presentan un grado de similitud.
 
 Ahora, veamos cuál es el rubro más certificado:
 
@@ -230,8 +250,7 @@ ggplot() +
   labs(title="Cantidad de organizaciones certificadas por rubro",
        caption="Fuente: Sistema Argentino de Calidad Turística",
        x="Cantidad",
-       y="Rubro",
-       fill="Rubro")+
+       y="Rubro")+
   theme_minimal()+
   theme(legend.position = "none")
 ```
@@ -277,8 +296,7 @@ ggplot() +
   labs(title="Cantidad de organizaciones certificadas por provincia",
        caption="Fuente: Sistema Argentino de Calidad Turística",
        x="Cantidad",
-       y="Provincia",
-       fill="Provincia")+
+       y="Provincia")+
   theme_minimal()+
   theme(legend.position = "none")
 ```
@@ -322,7 +340,6 @@ certificaciones %>%
 
 En cuanto a las calles y sus alturas, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
 
-
 Para finalizar con esta sección, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones ambientales anteriormente mencionadas.
 
 ```{r}
@@ -343,17 +360,23 @@ Repitamos el análisis que hicimos anteriormente, pero esta vez sólo aplicado a
 
 Veamos cuál es el rubro con más certificaciones ambientales:
 
-```{r}
-ambientales %>% 
+```{r, fig.height=7, fig.width=15}
+ggplot(ambientales %>% 
   group_by(rubro) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
-  print(n=Inf)
+  summarise(N=n())) +
+  geom_col(aes(x=N, y=reorder(rubro, N), fill=rubro))+
+  geom_text(aes(x=N+5, y=reorder(rubro, N), label=as.integer(N)), size=3)+
+  scale_x_continuous(limits = c(0, 210),
+                     breaks = seq(0, 210, 30))+
+  labs(title="Organizaciones con certificaciones ambientales por rubro",
+       caption="Fuente: Sistema Argentino de Calidad Turística",
+       x="Cantidad",
+       y="Rubro")+
+  theme_minimal()+
+  theme(legend.position = "none")
 ```
 
-Dentro de las entidades certificadas, aquellas correspondientes con el nombre **"Alojamiento"** representan la mayoría (casi el 50% de las certificadas). Veamos a que subcategoría pertencen:
-
-##PODEMOS METER GRAFIQUITO
+Dentro de las entidades certificadas, aquellas correspondientes con el nombre **"Alojamiento"** (202) representan la mayoría (casi el 50% de las certificadas). Veamos a que subcategoría pertencen:
 
 ```{r}
 ambientales %>% 
@@ -367,13 +390,21 @@ ambientales %>%
 Dentro de la categoría "Alojamiento", las **"Cabañas"** (43) son el tipo mayoritario, rondando el 20% de los alojamientos certificados. No obstante, hay que reconocer que la categoría "Hotel" se encuentra dividida en varias subcategorías. ¿Qué sucedería si las agrupamos?
 
 ```{r}
-ambientales %>% 
+ggplot(ambientales %>% 
   filter(rubro=="Alojamiento") %>% 
   mutate(subrubro=if_else(grepl('Hotel', subrubro), "Hotel", subrubro)) %>%
   group_by(subrubro) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
-  print(n=Inf)
+  summarise(N=n())) +
+  geom_col(aes(x=N, y=reorder(subrubro, N), fill=subrubro))+
+  geom_text(aes(x=N+3, y=reorder(subrubro, N), label=as.integer(N)), size=3)+
+  scale_x_continuous(limits = c(0, 80),
+                     breaks = seq(0, 80, 20))+
+  labs(title="Alojamientos con certificaciones ambientales",
+       caption="Fuente: Sistema Argentino de Calidad Turística",
+       x="Cantidad",
+       y="Alojamientos")+
+  theme_minimal()+
+  theme(legend.position = "none")
 ```
 
 Si recodificamos las variables, veremos que los **hoteles** son el tipo de alojamiento mayoritario (72 casos), lo equivalente a aproximadamente el 36% de la muestra.
@@ -388,25 +419,38 @@ ambientales %>%
   print(n=Inf)
 ```
 
+```{r}
+ggplot(ambientales %>% 
+  group_by(provincia) %>% 
+  summarise(N=n())) +
+  geom_col(aes(x=N, y=reorder(provincia, N), fill=provincia))+
+  geom_text(aes(x=N+3, y=reorder(provincia, N), label=as.integer(N)), size=3)+
+  scale_x_continuous(limits = c(0, 75),
+                     breaks = seq(0, 75, 15))+
+  labs(title="Cantidad de organizaciones con certificaciones ambientales",
+       subtitle = "Por provincia",
+       caption="Fuente: Sistema Argentino de Calidad Turística",
+       x="Cantidad",
+       y="Alojamientos")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
 Curiosamente, podemos ver que la **CABA** destronó a Buenos Aires como el distrito con mayores certificaciones. También interesante, vemos que **no todas las provincias del país cuentan con emprendimientos con certificaciones ambientales**, como La Pampa y Formosa.
 
 ```{r}
-ambientales %>% 
+a_rub <- ambientales %>% 
   group_by(ciudad) %>% 
   summarise(N=n()) %>% 
   arrange(desc(N)) %>% 
   print(n=Inf)
 ```
 
-Al hacer foco en las ciudades, **CABA** y **Bariloche** continuan siendo las ciudades con mayores certificaciones, aunque en una magnitud mucho menor que contando la totalidad de las certificaciones. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son sólo un 30% de las certificaciones de CABA, y un 15% de las de Bariloche.
+Al hacer foco en las ciudades, **CABA** y **Bariloche** continuan siendo las ciudades con mayores certificaciones, aunque en una magnitud mucho menor que contando la totalidad de las insignias. De hecho, si lo comparamos con los datos observados anteriormente, vemos que las certifiaciones ambientales son sólo un 30% de las pertenecientes a CABA, y un 15% de las de Bariloche.
 
 Otro dato interesante es que el número de ciudades se redujo considerablemente. En este marco, podemos afirmar que 321 ciudades cuentan con al menos un emprendimiento certificado por alguna buena práctica por el Ministerio de Turismo. Sin embargo, sólo 65 lo hacen por contar con un emprendimiento que contenga una insignia ambiental.
 
 Ahora bien, también resulta interesante analizar los años en los que las entidades obtuvieron sus certificados.
-
-```{r}
-library(lubridate)
-```
 
 ```{r}
 class(ambientales$fecha_distincion)
