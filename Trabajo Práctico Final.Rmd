@@ -21,10 +21,14 @@ Con respecto a la situación en Latinoamércia, y en especial  en Argentina, dur
 Con ello en vista, el siguiente trabajo se propone hacer un aporte a la discusión sobre el nivel actual de la transición verde en el sector turístico, y en nuestro análisis, centrándonos en los hoteles nacionales. 
 Con tal fin, se realiza un análisis de los establecimientos locales certificados con las directrices ambientales otorgadas por el Ministerio de Turismo y Deportes de la Nación, a partir de datos obtenidos del Ministerio de Turismo y Deopórte de la Nación, El mismo se encuentra disponible en <http://datos.yvera.gob.ar/>.
 
+Dividiremos el trabajo en tres partes:
+## 1º PARTE: Directrices de calidad ambiental
+## 2º PARTE: Diagnostico
+## 3º PARTE: Conclusiones
 
 Particularmente, buscamos responder:
 
-*A* B *C
+##¿Cuán preparada está la industria turística en la Argentina para desarrollarse como una industria sustentable?
 
 Para ordenar el análisis, dividiremos nuestro trabajo en partes.
 
@@ -259,7 +263,7 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-**Alojamiento** (1237), seguido, aunque por bastante diferencia, de **Gastronomía** (448) y **Agencia de viaje** (346) son los rubros más frecuentes de nuestra tabla.
+**Alojamiento** aparece en primer lugar (1237), seguido, aunque por bastante diferencia, de **Gastronomía** (448) y **Agencia de viaje** (346) son los rubros más frecuentes de nuestra tabla.
 
 A continaución, veamos la distribución geográfica de nuestras iniciativas.
 
@@ -305,7 +309,8 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es el distrito que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298), y que **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos.
+Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es el distrito que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298).
+**La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos certificaciones tiene.
 
 ```{r}
 certificaciones %>% 
@@ -342,7 +347,8 @@ certificaciones %>%
   print(n=Inf)
 ```
 
-En cuanto a las calles y sus alturas, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
+En cuanto a las calles y sus alturas, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. 
+A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
 
 Para finalizar con esta sección, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones ambientales anteriormente mencionadas.
 
