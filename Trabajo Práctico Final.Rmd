@@ -1,7 +1,7 @@
 ---
 title: "Trabajo Práctico Final"
 author: "Kihara, Marco & Soubie"
-date: "29/8/2021"
+date: "09/10/2021"
 output: html_document
 editor_options: 
   markdown: 
@@ -9,9 +9,6 @@ editor_options:
 ---
 
 # **Trabajo Práctico Final**
-
-#### A LA INTRO HABRÏA QUE DARLE UNA MAYOR NARRATIVA Y ORDENAR UN POCO MEJOR LOS OBJETIVOS DEL TRABAJO
-
 
 El cambio climático es uno de los desafíos más urgentes que enfrenta la humanidad. Se espera que en los próximos 15 años, el incremento de la temperatura media mundial por encima de los 1,5ºC. lleve al aumento en la periodicidad e intensidad de los fenómenos climáticos extremos, acarreando grandes consecuencias para toda la sociedad (particularmente, para los sectores más vulnerables), poniendo en duda varios de los avances económicos y sociales logrados hasta el momento. 
 En este marco, es necesario promover una transición hacia un modelo de desarrollo más sostenible y fomentar aquellas iniciativas que conlleven un uso más racional de los recursos, alineados con los Objetivos de Desarrollo Sustentable planteados por la ONU para el 2030.
@@ -60,7 +57,7 @@ En un primer vistazo, podemos advertir varias cuestiones de nuestro dataset:
 
 A continuación, analizaremos con mayor profundidad nuestro dataset. Para ello, nuestro primer paso consiste en "limpiar" nuestra base de datos.
 
-Primero, veamos las organizaciones registradas en nuestro dataset.
+Primero veamos las organizaciones registradas en nuestro dataset:
 
 ```{r}
 certificaciones %>% 
