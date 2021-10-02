@@ -610,3 +610,4 @@ ambientales_ano_rubro_4 <- ambientales_ano_rubro_3%>%
   mutate(ano=apply (2, which.max))
 ```
 
+## 3º PARTE: Conclusiones
