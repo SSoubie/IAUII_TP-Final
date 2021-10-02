@@ -490,15 +490,47 @@ Se podría pensar que, a medida que pasa el tiempo, cada año debería ser mayor
 Ahora se considerará este misma análisis pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y Bariloche.
 
 ```{r}
-ambientales_ano_ciud <- ambientales %>% 
-  filter(ciudad %in% c("Ciudad Autonoma De Buenos Aires", "San Carlos De Bariloche")) %>% 
-  group_by(ano_distincion, ciudad) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
+ambientales_ano_CABA <- ambientales %>% 
+  filter(ciudad =="Ciudad Autonoma De Buenos Aires") %>% 
+  group_by(ano_distincion) %>% 
+  summarise(CABA=n()) %>% 
+  arrange(desc(CABA)) %>% 
   print(n=Inf)
 ```
 
-A partir de esta información se observa que, a pesar de que las dos ciudades sean las que poseen mayor cantidad de entidades certificadas, cada una de ellas tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones; mientras que en San Carlos de Bariloche (Río Negro) fue en el año 2017, reforzando la tendencia previamente observada a nivel nacional.
+```{r}
+calcular_pct <- function(data){
+  round(data/(sum(data, na.rm = FALSE))*100,1)}
+```
+
+```{r}
+ambientales_ano_CABA <- ambientales_ano_CABA %>% 
+  mutate(pct_CABA=calcular_pct(data= CABA))
+```
+
+```{r}
+ambientales_ano_BRC <- ambientales %>% 
+  filter(ciudad =="San Carlos De Bariloche") %>% 
+  group_by(ano_distincion) %>% 
+  summarise(BRC=n()) %>% 
+  arrange(desc(BRC)) %>% 
+  print(n=Inf)
+```
+
+```{r}
+ambientales_ano_BRC <- ambientales_ano_BRC %>% 
+  mutate(pct_BRC=calcular_pct(data= BRC))
+```
+
+
+```{r}
+ambientales_ano_CABA_BRC <- full_join(ambientales_ano_CABA, ambientales_ano_BRC, by="ano_distincion")
+```
+
+A partir de la tabla anterior se evidencia que, más allá de que ambas ciudades tengan la mayor cantidad de distinciones, la distribución de las entregas en el tiempo es diferenete. Mientras que en CABA la entrega de distinciones se divide de forma similar (rondando el 20%) entre 2016 y 2019; en Bariloche la entrega ocurre solamente en dos años (2017 y 2014), en los que se concentra entre el 45% y el 50% de las distinciones totales. 
+
+Asimismo, también se puede observar que cada ciudad tuvo su momento de "apogeo" de las distinciones. En el caso de la Ciudad de Buenos Aires fue en el año 2019, cuando entregó 17 distinciones (el 27,4%); mientras que en San Carlos de Bariloche (Río Negro) fue en el año 2017 (el 50%), reforzando la tendencia previamente observada a nivel nacional.
+
 
 Por otro lado, además de analizar el año de certificaciones por Ciudades, evaluaremos el año de certificaciones según los rubros, para poder detectar si durante algún año en particular hubo un rubro que obtuvo mayores distinciones que otro. 
 
@@ -521,21 +553,15 @@ ambientales_ano_rubro_2 %>%
 
 A partir de la operación anterior se puede observar que para todos los años analizados (excepto para el 2019), el rubro que recibió mayor cantidad de distinciones fue el de Alojamiento (4to en la lista). En el caso del año 2019, el rubro que obtuvo mayor cantidad de distinciones fue el de Balnearios. 
 
-Ahora bien, esta comparación en términos absolutos resulta un tanto injusta para aquellos rubros que poseen pocas certificaciones totales. Por lo tanto, ahora analizaremos la misma tabla que antes pero considerando los porcentajes de certificaciones recibidas por año por cada rubro.
+Ahora bien, es interesante también hacer el análisis inverso, es decir, conocer en qué año cada rubro registró la mayor cantidad de distinciones. Para ello: 
 
 
 ```{r}
-ambientales_ano_rubro_100 <- ambientales_ano_rubro %>% 
+ambientales_ano_rubro_3 <- ambientales_ano_rubro %>% 
   pivot_wider(names_from = rubro, values_from = N)
 ```
 
-
-```{r}
-calcular_pct <- function(data){
-  round(data/(sum(data))*100,1)}
-```
-
-Para este análisis no consideraremos aquellos rubros que poseen valores nulos para todos los años excepto para uno, ya que para ese año tendrán un valor igual al 100%. Por este motivo, las columnas que no tendremos en cuenta son: 
+Para este análisis no consideraremos aquellos rubros que poseen valores nulos para todos los años excepto para uno, ya que para ese año tendrán el total de distinciones. Por este motivo, las columnas que no tendremos en cuenta son: 
 
 - Oficina de Informes
 
@@ -544,55 +570,37 @@ Para este análisis no consideraremos aquellos rubros que poseen valores nulos p
 - Producción Olivícola
 
 ```{r}
-ambientales_ano_rubro_100 <- ambientales_ano_rubro_100 %>% 
+ambientales_ano_rubro_3 <- ambientales_ano_rubro_3 %>% 
   select(-12) %>% 
   select(-(16:17))
 ```
 
 ```{r}
-class(ambientales_ano_rubro_100$`Actividades recreativas y deportivas`)
+class(ambientales_ano_rubro_3$`Actividades recreativas y deportivas`)
 ```
 ```{r}
-class(ambientales_ano_rubro_100$ano_distincion)
+class(ambientales_ano_rubro_3$ano_distincion)
 ```
-
-
 ```{r}
 library(janitor)
 ```
 
-
 ```{r}
-ambientales_ano_rubro_100 <- ambientales_ano_rubro_100 %>% 
+ambientales_ano_rubro_3 <- ambientales_ano_rubro_3 %>% 
   replace(is.na(.),0) %>% 
   filter(!ano_distincion==0) %>% 
   clean_names()
 ```
 
-
-ACÁ INTENTÉ HACER LA FUNCION, PARA PODER SACAR LOS PORCENTAJES Y NO FUNCIONÓ. SI ALGUIEN SABE QUÉ ME ESTÁ FALTANDO LA RETOCAMOS Y SINO, LA ELIMINAMOS, NO HAY PROBLEMA; PERO QUERÍA PROBAR AL MENOS. 
-
 ```{r}
-ambientales_ano_rubro_100_PRUEBA <- ambientales_ano_rubro_100 %>% 
-  as.character(ano_distincion) %>% 
-  transmute(ano_distincion, act_cul=(calcular_pct(data= actividades_culturales))) %>% 
-  transmute(ano_distincion, act_ryd=(calcular_pct(data = as.numeric(actividades_recreativas_y_deportivas)))) %>% 
-  transmute(ano_distincion, ag_viajes=(calcular_pct(data = as.numeric(`Agencia de Viajes`)))) %>% 
-  transmute(ano_distincion, aloj=(calcular_pct(data = as.numeric(`Alojamiento`)))) %>% 
-  transmute(ano_distincion, area_nat=(calcular_pct(data = as.numeric(`Area Natural Protegida`)))) %>% 
-  transmute(ano_distincion, balne=(calcular_pct(data = as.numeric(`Balneario`)))) %>% 
-  transmute(ano_distincion, com_tur=(calcular_pct(data = as.numeric(`Comercio Turistico`)))) %>% 
-  transmute(ano_distincion, eno=(calcular_pct(data=as.numeric(`Enoturismo`)))) %>% 
-  transmute(ano_distincion, gastro=(calcular_pct(data = as.numeric(`Gastronomía`)))) %>% 
-  transmute(ano_distincion, org_pub=(calcular_pct(data = as.numeric(`Organismo Público`)))) %>% 
-  transmute(ano_distincion, transp_tur=(calcular_pct(data = as.numeric(`Transporte turístico`)))) %>% 
-  transmute(ano_distincion, asoc=(calcular_pct(data=as.numeric(`Asociación`)))) %>% 
-  transmute(ano_distincion, conce=(calcular_pct(data = as.numeric(`Concesionaria`)))) %>% 
-  transmute(ano_distincion, emp_seryes=(calcular_pct(data = as.numeric(`Empresa de servicios y espectáculos`))))
+ambientales_ano_rubro_3 %>% 
+  apply (2, which.max)
 ```
 
-Y ME FALTA HACER LA PARTE DE CANTIDAD DE DÍAS DESDE QUE CERTIFICARON
+MEJORAR!!!!!
 
---------------------------------------------------------------------------------
-
+```{r}
+ambientales_ano_rubro_4 <- ambientales_ano_rubro_3%>% 
+  mutate(ano=apply (2, which.max))
+```
 
