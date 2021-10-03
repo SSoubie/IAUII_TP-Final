@@ -40,7 +40,7 @@ library(janitor)
 library(paletteer)
 library(ggthemes)
 library(ggsci)
-library(stringi)
+library(stringr)
 options (scipen = 100)
 ```
 
