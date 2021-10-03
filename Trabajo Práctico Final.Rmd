@@ -523,6 +523,33 @@ ambientales <- ambientales %>%
   mutate(ano_distincion=year(fecha_distincion))
 ```
 
+En primer lugar, analizaremos las fechas particulares en las que se obtuvieron las distinciones, con el fin de observar si hubo momentos "pico", es decir, en los que se hayan entregado muchas distinciones. 
+
+```{r}
+fecha_max_amb <- ambientales %>%
+         group_by(fecha_distincion) %>%
+         summarise(cantidad=n())  
+```
+  
+
+```{r, fig.height=7, fig.width=15}
+ggplot(fecha_max_amb) +  
+  geom_line(aes(x = fecha_distincion, y = cantidad, color=cantidad)) +
+  geom_point(aes(x=fecha_distincion, y=cantidad, color=cantidad))+
+  geom_text(data= fecha_max_amb, aes(x=fecha_distincion, y = cantidad+2, label= cantidad))+
+  scale_x_date(date_labels = "%m/%y", limits = c(as.Date("2014-01-01"), as.Date("2019-12-31")), date_breaks= "1 year")+
+  labs(title="Cantidad de certificaciones ambientales otorgadas por día (desde 2014 a 2020)",
+       caption="Fuente: Sistema Argentino de Calidad Turística",
+       x="Fecha de distinción ambiental",
+       y="Cantidad")+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+A partir del gráfico anterior se puede observar que los momentos en los que más certificaciones se dieron (es decir, los "picos") fueron en: fines del 2017 (30 certificaciones), segundo semestre del 2014 (25 certificaciones) y fines del 2018 (20 + 20= 40 certificaciones). 
+
+Sin embargo, sería interesante poder evaluar cuáles fueron los años en los que se entregó la mayor cantidad. 
+
 ```{r}
 ambientales %>% 
   group_by(ano_distincion) %>% 
@@ -589,12 +616,13 @@ ambientales_ano_rubro <- ambientales %>%
 ```
 
 ```{r}
-ambientales_ano_rubro_2 <- ambientales_ano_rubro %>% 
+ambientales_ano_rubro <- ambientales_ano_rubro %>% 
   pivot_wider(names_from = ano_distincion, values_from = N)
 ```
 
+RETOCAR TAMBIEN PARA QUE DE EL AÑO DE UNA
 ```{r}
-ambientales_ano_rubro_2 %>% 
+ambientales_ano_rubro %>% 
   select(-9) %>% 
   apply(2, which.max)
 ```
@@ -605,7 +633,7 @@ Ahora bien, es interesante también hacer el análisis inverso, es decir, conoce
 
 
 ```{r}
-ambientales_ano_rubro_3 <- ambientales_ano_rubro %>% 
+ambientales_ano_rubro <- ambientales_ano_rubro %>% 
   pivot_wider(names_from = rubro, values_from = N)
 ```
 
@@ -618,39 +646,34 @@ Para este análisis no consideraremos aquellos rubros que poseen valores nulos p
 - Producción Olivícola
 
 ```{r}
-ambientales_ano_rubro_3 <- ambientales_ano_rubro_3 %>% 
+ambientales_ano_rubro <- ambientales_ano_rubro %>% 
   select(-12) %>% 
   select(-(16:17))
 ```
 
 ```{r}
-class(ambientales_ano_rubro_3$`Actividades recreativas y deportivas`)
-```
-```{r}
-class(ambientales_ano_rubro_3$ano_distincion)
-```
-```{r}
-library(janitor)
+class(ambientales_ano_rubro$`Actividades recreativas y deportivas`)
 ```
 
 ```{r}
-ambientales_ano_rubro_3 <- ambientales_ano_rubro_3 %>% 
+class(ambientales_ano_rubro$ano_distincion)
+```
+
+
+```{r}
+ambientales_ano_rubro <- ambientales_ano_rubro %>% 
   replace(is.na(.),0) %>% 
   filter(!ano_distincion==0) %>% 
   clean_names()
 ```
 
+RETOCAR PARA OBTENER INFO OK DE UNA
 ```{r}
-ambientales_ano_rubro_3 %>% 
+ambientales_ano_rubro %>% 
   apply (2, which.max)
 ```
 
-MEJORAR!!!!!
 
-```{r}
-ambientales_ano_rubro_4 <- ambientales_ano_rubro_3%>% 
-  mutate(ano=apply (2, which.max))
-```
 
 ## 3º PARTE: Conclusiones
 
