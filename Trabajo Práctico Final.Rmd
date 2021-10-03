@@ -29,7 +29,6 @@ Para ordenar el análisis, dividiremos nuestro trabajo en partes:
 ## [2º PARTE: Diagnóstico](#parte_2)
 ## [3º PARTE: Conclusiones](#parte_3)
 
-
 ## <a id="parte_1"></a>**Directrices de calidad ambiental**
 
 ```{r include=FALSE}
@@ -44,6 +43,7 @@ library(janitor)
 library(paletteer)
 library(ggthemes)
 library(ggsci)
+library(stringi)
 options (scipen = 100)
 ```
 
@@ -322,12 +322,9 @@ Podemos ver que todas las provincias del país cuentan con al menos una organiza
 
 Aprovechemos, y descargemos un dataset espacial que contenga los polígonos de las provincias del país.
 
-```{r}
-provincias <- st_read()
-```
 
 ```{r}
-head(provincias)
+provincias <- st_read("data/ign_provincia.shp")
 ```
 
 ```{r}
@@ -338,17 +335,38 @@ ggplot(provincias)+
 Vemos que en shapefile del mapa de la República Argentina incluye el territorio antártico.
 
 ```{r}
-Provincias02 <- Provincias  %>% 
+provincias02 <- provincias  %>% 
   st_crop(xmin=-78.844299, ymin= -56.918980,
           xmax= -53.531800, ymax= -20.341163)
 ```
 
 ```{r}
-ggplot(Provincias02)+
+ggplot(provincias02)+
   geom_sf()
 ```
 
 Utilizaremos este mapa de la República Argentina al que le hemos eliminado el territorio antártico, dado que no poseemos datos en el mismo.
+
+```{r}
+paramapear <-left_join(provincias02, provincias, by=c("NAM"="provincia"))
+```
+
+```{r}
+head(Paramapear)
+```
+
+```{r fig.height=5, fig.width=5.5}
+ggplot()+
+  geom_sf(data=Provincias02, fill="gray60")+
+  geom_sf(data= Paramapear, aes(fill=N))+
+labs(title = "Cantidad de Organizaciones certificadas por provincias", 
+       fill = "Escala cantidad ", 
+       caption = "Fuente: Sistema Argentino de Calidad Turística",
+     x="Longitud", y="Latitud")+
+   theme(title=element_text(size=8),
+    axis.text=element_text(size=8), axis.title=element_text(size=10),legend.text=element_text(size=10))+
+  scale_fill_viridis_c()
+```
 
 ```{r}
 certificaciones %>% 
