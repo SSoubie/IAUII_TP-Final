@@ -653,3 +653,5 @@ ambientales_ano_rubro_4 <- ambientales_ano_rubro_3%>%
 ```
 
 ## 3º PARTE: Conclusiones
+
+A partir de los datos obtenidos en el siguiente trabajo, podemos concluir que queda mucho por seguir haciendo en términos de organismos tendientes a la sustentabilidad en la industria del turismo en todo el país. La necesidad de un seguimiento constante, incentivos con las certificaciones, sería un posible camino para que la industria del turismo se alinee cada vez más a objetivos que afecten menos al medioambiente y demuestren su operación tendiente a la sustentabildiad.
