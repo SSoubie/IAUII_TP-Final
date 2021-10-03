@@ -312,6 +312,43 @@ ggplot() +
 Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es el distrito que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298).
 **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos certificaciones tiene.
 
+
+```{r}
+Argentina <- st_read("https://infra.datos.gob.ar/catalog/modernizacion/dataset/7/distribution/7.13/download/departamentos.geojson")
+```
+
+
+```{r}
+Provincias <- st_read("data/ign_provincia.shp")
+```
+
+```{r}
+head(Provincias)
+```
+
+```{r}
+ggplot(Provincias)+
+  geom_sf()
+```
+Vemos que en shapefile del mapa de la República Argentina incluye el territorio antártico.
+
+
+```{r}
+Provincias02 <- Provincias  %>% 
+  st_crop(xmin=-78.844299, ymin= -56.918980,
+          xmax= -53.531800, ymax= -20.341163)
+  
+```
+
+
+```{r}
+ggplot(Provincias02)+
+  geom_sf()
+```
+
+Utilizaremos este mapa de la República Argentina al que le hemos eliminado el territorio antártico, dado que no poseemos datos en el mismo.
+
+
 ```{r}
 certificaciones %>% 
   filter(pais=="Argentina") %>% 
