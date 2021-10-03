@@ -43,6 +43,7 @@ library(ggmap)
 library(raster)
 library(leaflet)
 library(janitor)
+library(stringi)
 options (scipen = 100)
 ```
 
@@ -319,11 +320,6 @@ Podemos ver que todas las provincias del país cuentan con al menos una organiza
 
 
 ```{r}
-Argentina <- st_read("https://infra.datos.gob.ar/catalog/modernizacion/dataset/7/distribution/7.13/download/departamentos.geojson")
-```
-
-
-```{r}
 Provincias <- st_read("data/ign_provincia.shp")
 ```
 
@@ -353,7 +349,27 @@ ggplot(Provincias02)+
 
 Utilizaremos este mapa de la República Argentina al que le hemos eliminado el territorio antártico, dado que no poseemos datos en el mismo.
 
+```{r}
+Paramapear <-left_join(Provincias02, provincias, by=c("NAM"="provincia"))
+```
 
+```{r}
+head(Paramapear)
+```
+
+
+```{r fig.height=5, fig.width=5.5}
+ggplot()+
+  geom_sf(data=Provincias02, fill="gray60")+
+  geom_sf(data= Paramapear, aes(fill=N))+
+labs(title = "Cantidad de Organizaciones certificadas por provincias", 
+       fill = "Escala cantidad ", 
+       caption = "Fuente: Sistema Argentino de Calidad Turística",
+     x="Longitud", y="Latitud")+
+   theme(title=element_text(size=8),
+    axis.text=element_text(size=8), axis.title=element_text(size=10),legend.text=element_text(size=10))+
+  scale_fill_viridis_c()
+```
 ```{r}
 certificaciones %>% 
   filter(pais=="Argentina") %>% 
