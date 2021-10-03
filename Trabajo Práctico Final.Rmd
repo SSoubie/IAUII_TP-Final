@@ -39,8 +39,13 @@ library(tidyverse)
 library(readxl)
 library(sf)
 library(lubridate)
+library(ggmap)
+library(raster)
+library(leaflet)
+library(janitor)
 options (scipen = 100)
 ```
+
 En la primera parte del proyecto trabajaremos sobre el dataset de organizaciones distinguidas por el Sistema Argentino de Calidad Turística (SACT) perteneciente al Ministerio de Turismo y Deporte de la Nación. 
 
 ```{r}
