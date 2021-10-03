@@ -36,9 +36,6 @@ library(tidyverse)
 library(readxl)
 library(sf)
 library(lubridate)
-library(ggmap)
-library(raster)
-library(leaflet)
 library(janitor)
 library(paletteer)
 library(ggthemes)
@@ -324,24 +321,24 @@ Aprovechemos, y descargemos un dataset espacial que contenga los polígonos de l
 
 
 ```{r}
-provincias <- st_read("data/ign_provincia.shp")
+provincias_pol <- readRDS("dato/poligonosprov.rds")
 ```
 
 ```{r}
-ggplot(provincias)+
+ggplot(provincias_pol)+
   geom_sf()
 ```
 
 Vemos que en shapefile del mapa de la República Argentina incluye el territorio antártico.
 
 ```{r}
-provincias02 <- provincias  %>% 
+provincias_pol <- provincias_pol  %>% 
   st_crop(xmin=-78.844299, ymin= -56.918980,
           xmax= -53.531800, ymax= -20.341163)
 ```
 
 ```{r}
-ggplot(provincias02)+
+ggplot(provincias_pol)+
   geom_sf()
 ```
 
@@ -698,7 +695,6 @@ RETOCAR PARA OBTENER INFO OK DE UNA
 ambientales_ano_rubro %>% 
   apply (2, which.max)
 ```
-
 
 
 ## <a id="parte_2"></a>**Conclusiones**
