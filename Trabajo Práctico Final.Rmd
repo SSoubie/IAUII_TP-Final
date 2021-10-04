@@ -359,41 +359,58 @@ A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos 
 Ahora bien, a partir de la información anterior, descargamos un dataset espacial que contenga los polígonos de las provincias del país para poder mapear las organizaciones certificadas.
 
 
+
 ```{r}
 provincias_pol <- readRDS("dato/poligonosprov.rds")
 ```
 
+
+
 ```{r}
-ggplot(provincias_pol)+
-  geom_sf()
+ggplot()+
+  geom_sf(data=provincias_pol, fill="gray60")
 ```
 
-Vemos que en shapefile del mapa de la República Argentina incluye el territorio antártico.
+Vemos que el mapa de la República Argentina descargado, trae consigo al territorio de las Islas del Atlántico sur y Antártida. Como no contamos con datos de esas regiones las sacaremos de la gráfica y nos quedaremos con la parte continental del país.(... y de mientras protegemos a los pingüinitos).
 
 ```{r}
-provincias_pol <- provincias_pol  %>% 
+provincias_pol02 <- provincias_pol  %>% 
   st_crop(xmin=-78.844299, ymin= -56.918980,
           xmax= -53.531800, ymax= -20.341163)
 ```
-
 ```{r}
-ggplot(provincias_pol)+
-  geom_sf()
+ggplot()+
+  geom_sf(data=provincias_pol02, fill="gray60")
 ```
 
 Utilizaremos este mapa de la República Argentina al que le hemos eliminado el territorio antártico, dado que no poseemos datos en el mismo.
 
 ```{r}
-paramapear <-left_join(provincias02, provincias, by=c("NAM"="provincia"))
+Paramapear <-left_join(provincias_pol02, provincias, by=c("nam"="provincia"))
 ```
 
 ```{r}
 head(Paramapear)
 ```
 
+```{r}
+Paramapear[1,10] <- 306
+Paramapear[2,10] <- 193
+Paramapear[7.10] <- 106
+Paramapear[13,10] <- 117
+Paramapear[14,10] <- 130
+Paramapear[17,10] <- 42
+Paramapear[18,10] <- 162
+Paramapear[24,10] <- 77
+```
+
+No sabemos si esta "artesanía" está bien, pero los acentos de un dataset que no pudimos editar, nos impedía tener los datos completos.
+
+
+
 ```{r fig.height=5, fig.width=5.5}
 ggplot()+
-  geom_sf(data=Provincias02, fill="gray60")+
+  geom_sf(data=provincias_pol02, fill="gray60")+
   geom_sf(data= Paramapear, aes(fill=N))+
 labs(title = "Cantidad de Organizaciones certificadas por provincias", 
        fill = "Escala cantidad ", 
@@ -403,11 +420,6 @@ labs(title = "Cantidad de Organizaciones certificadas por provincias",
     axis.text=element_text(size=8), axis.title=element_text(size=10),legend.text=element_text(size=10))+
   scale_fill_viridis_c()
 ```
-
-#MAPA Y DEMÁS 
-
-
-
 
 Para finalizar con esta sección, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones ambientales anteriormente mencionadas.
 
@@ -710,5 +722,4 @@ A partir de esta información se puede observar que:
 ## <a id="parte_2"></a>**Conclusiones**
 
 A partir de los datos obtenidos en el siguiente trabajo se evidencia que ha habido progresos en materia de certificaciones ambientales en los rubros relacionados con el turismo. Estos avances se observaron mayoritariamente en el rubro se los alojamientos, aunque todavía restan muchísimos por certificar. 
-En esta línea, podemos concluir que queda mucho por seguir haciendo en términos de organismos tendientes a la sustentabilidad en la industria del turismo en todo el país. Se evidencia la necesidad de realizar un seguimiento constante y brindar incentivos para la obtención de certificaciones, con el fin de avanzar a un paso más veloz en pos de acercarnos a una 
-operación tendiente a la sustentabildiad. 
+En esta línea, podemos concluir que queda mucho por seguir haciendo en términos de organismos tendientes a la sustentabilidad en la industria del turismo en todo el país. Se evidencia la necesidad de realizar un seguimiento constante y brindar incentivos para la obtención de certificaciones, con el fin de avanzar a un paso más veloz en pos de acercarnos a una operación tendiente a la sustentabildiad. 
