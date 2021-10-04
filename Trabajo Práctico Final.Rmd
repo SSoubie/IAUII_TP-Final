@@ -317,7 +317,46 @@ ggplot() +
 
 Podemos ver que todas las provincias del país cuentan con al menos una organización certificada en el Sistema Argentino de Calidad Turística. En este contexto, **Buenos Aires** es el distrito que cuenta con el mayor número de certificaciones (306), seguida de **Mendoza** (298). Por su parte, **La Pampa** (3) y **Formosa** (7), en ese orden, son las que menos certificaciones tiene.
 
-Aprovechemos, y descargemos un dataset espacial que contenga los polígonos de las provincias del país.
+```{r}
+certificaciones %>% 
+  filter(pais=="Argentina") %>% 
+  group_by(ciudad) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+En cuanto a las ciudades, la **Ciudad Autónoma de Buenos Aires** (201) y **Bariloche** (120), respectivamente, son las ciudades que cuentan con el mayor número de certificaciones.
+
+Veamos algunos detalles más de la localización de nuestras organizaciones: *Código postal* y *calles*.
+
+Comencemos por el primero.
+
+```{r}
+certificaciones %>%
+  filter(pais=="Argentina") %>% 
+  group_by(codigo_postal) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+Podemos ver que todas las organizaciones cuentan con un **código postal** registrado (no se observan NAs). 
+
+```{r}
+certificaciones %>%
+  filter(pais=="Argentina") %>% 
+  group_by(calle, numero) %>% 
+  summarise(N=n()) %>% 
+  arrange(desc(N)) %>% 
+  print(n=Inf)
+```
+
+En cuanto a las **calles y sus alturas**, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. 
+
+A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
+
+Ahora bien, a partir de la información anterior, descargamos un dataset espacial que contenga los polígonos de las provincias del país para poder mapear las organizaciones certificadas.
 
 
 ```{r}
@@ -365,44 +404,10 @@ labs(title = "Cantidad de Organizaciones certificadas por provincias",
   scale_fill_viridis_c()
 ```
 
-```{r}
-certificaciones %>% 
-  filter(pais=="Argentina") %>% 
-  group_by(ciudad) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
-  print(n=Inf)
-```
+#MAPA Y DEMÁS 
 
-En cuanto a las ciudades, la **Ciudad Autónoma de Buenos Aires** (201) y **Bariloche** (120), respectivamente, son las ciudades que cuentan con el mayor número de certificaciones.
 
-Veamos algunos detalles más de la localización de nuestras organizaciones: *Código postal* y *calles*.
 
-Comencemos por el primero.
-
-```{r}
-certificaciones %>%
-  filter(pais=="Argentina") %>% 
-  group_by(codigo_postal) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
-  print(n=Inf)
-```
-
-Podemos ver que todas las organizaciones cuentan con un **código postal** registrado (no se observan NAs). 
-
-```{r}
-certificaciones %>%
-  filter(pais=="Argentina") %>% 
-  group_by(calle, numero) %>% 
-  summarise(N=n()) %>% 
-  arrange(desc(N)) %>% 
-  print(n=Inf)
-```
-
-En cuanto a las **calles y sus alturas**, vemos que hay una gran variedad de datos y que no toda la información corresponde con direcciones específicas. 
-
-A los fines de este trabajo, no ahondaremos en estas cuestiones, pero sugerimos incorporar mayores estándares en la carga de esta información.
 
 Para finalizar con esta sección, filtremos nuestro dataset por los emprendimientos del país que cuentan con las certificaciones ambientales anteriormente mencionadas.
 
@@ -585,7 +590,7 @@ A partir de la información previa se evidencia que la mayoría de las distincio
 
 Se podría pensar que, a medida que pasa el tiempo, cada año debería ser mayor la cantidad de entidades que reciben distinciones, ya sea porque aumenta el compromiso / la conciencia para con el medioambiente, ya sea porque se populariza la existencia de las distinciones, etc. Sin embargo, esta idea se refuta cuando se observa que del 2017 al 2018 y del 2018 al 2019 hubo reducciones considerables en la cantidad de entidades reconocidas con dicha certificación.
 
-Ahora se considerará este misma análisis pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y Bariloche.
+Ahora se realizará un análisis similar pero para las dos ciudades que concentran la mayor cantidad de distinciones: CABA y Bariloche.
 
 ```{r}
 ambientales_ano_CABA <- ambientales %>% 
@@ -633,17 +638,17 @@ Asimismo, también se puede observar que cada ciudad tuvo su momento de "apogeo"
 Por otro lado, además de analizar el año de certificaciones por Ciudades, evaluaremos el año de certificaciones según los rubros, para poder detectar si durante algún año en particular hubo un rubro que obtuvo mayores distinciones que otro. 
 
 ```{r}
-ambientales_ano_rubro <- ambientales %>% 
+ambientales_ano_rubro_cant <- ambientales %>% 
   group_by(ano_distincion, rubro) %>% 
   summarise(N=n())
 ```
 
 ```{r}
-ambientales_ano_rubro <- ambientales_ano_rubro %>% 
+ambientales_ano_rubro <- ambientales_ano_rubro_cant %>% 
   pivot_wider(names_from = ano_distincion, values_from = N)
 ```
 
-RETOCAR TAMBIEN PARA QUE DE EL AÑO DE UNA
+
 ```{r}
 ambientales_ano_rubro %>% 
   select(-9) %>% 
@@ -656,7 +661,7 @@ Ahora bien, es interesante también hacer el análisis inverso, es decir, conoce
 
 
 ```{r}
-ambientales_ano_rubro <- ambientales_ano_rubro %>% 
+ambientales_ano_rubro <- ambientales_ano_rubro_cant %>% 
   pivot_wider(names_from = rubro, values_from = N)
 ```
 
@@ -690,13 +695,20 @@ ambientales_ano_rubro <- ambientales_ano_rubro %>%
   clean_names()
 ```
 
-RETOCAR PARA OBTENER INFO OK DE UNA
+
 ```{r}
 ambientales_ano_rubro %>% 
   apply (2, which.max)
 ```
+A partir de esta información se puede observar que:
+
+- La mayoría de los rubros (Alojamiento, Organismo Público, Asociación, Empresas de servicios y espectáculos, Gastronomía, Transporte y Concesionaria) obtuvieron la mayor cantidad de sus certificaciones en el año 2017 (5ta fila), que coincide con el año de mayor entrega de certificaciones en general. 
+
+- Por otro lado, hay otros rubros que obutiveron la mayoría de sus certificaciones dos años más tarde (en el 2019, fila 7), como por ejemplo los Balnearios y las Agencias de Viaje. 
 
 
 ## <a id="parte_2"></a>**Conclusiones**
 
-A partir de los datos obtenidos en el siguiente trabajo, podemos concluir que queda mucho por seguir haciendo en términos de organismos tendientes a la sustentabilidad en la industria del turismo en todo el país. La necesidad de un seguimiento constante, incentivos con las certificaciones, sería un posible camino para que la industria del turismo se alinee cada vez más a objetivos que afecten menos al medioambiente y demuestren su operación tendiente a la sustentabildiad. 
+A partir de los datos obtenidos en el siguiente trabajo se evidencia que ha habido progresos en materia de certificaciones ambientales en los rubros relacionados con el turismo. Estos avances se observaron mayoritariamente en el rubro se los alojamientos, aunque todavía restan muchísimos por certificar. 
+En esta línea, podemos concluir que queda mucho por seguir haciendo en términos de organismos tendientes a la sustentabilidad en la industria del turismo en todo el país. Se evidencia la necesidad de realizar un seguimiento constante y brindar incentivos para la obtención de certificaciones, con el fin de avanzar a un paso más veloz en pos de acercarnos a una 
+operación tendiente a la sustentabildiad. 
